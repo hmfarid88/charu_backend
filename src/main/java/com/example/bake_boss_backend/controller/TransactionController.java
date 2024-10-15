@@ -197,4 +197,24 @@ public class TransactionController {
     public List<EmployeePayment> getDatewiseEmployeePayment(@RequestParam String username, LocalDate startDate, LocalDate endDate) {
         return retailerPaymentService.getDatewiseEmployeePay(username, startDate, endDate);
     }
+
+    @GetMapping("/getRetailerCommission")
+    public List<RetailerCommission> getRetailerCommissionForCurrentMonth(@RequestParam String username) {
+        return retailerPaymentService.getRetailerCommissionForCurrentMonth(username);
+    }
+
+    @GetMapping("/getDatewiseRetailerCommission")
+    public List<RetailerCommission> getDatewiseRetailerCommission(@RequestParam String username, LocalDate startDate, LocalDate endDate) {
+        return retailerPaymentService.getDatewiseRetailerCommission(username, startDate, endDate);
+    }
+
+    @GetMapping("/getSupplierCommission")
+    public List<SupplierCommission> getSupplierCommissionForCurrentMonth(@RequestParam String username) {
+        return supplierPaymentService.getSupplierCommissionForCurrentMonth(username);
+    }
+
+    @GetMapping("/getDatewiseSupplierCommission")
+    public List<SupplierCommission> getDatewiseSupplierCommission(@RequestParam String username, LocalDate startDate, LocalDate endDate) {
+        return supplierPaymentService.getDatewiseSupplierCommission(username, startDate, endDate);
+    }
 }

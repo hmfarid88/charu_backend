@@ -14,4 +14,10 @@ public interface RetailerCommissionRepository extends JpaRepository<RetailerComm
     @Query("SELECT new com.example.bake_boss_backend.dto.PaymentDto(s.date, s.retailerName, s.note, s.amount) "
             + "FROM RetailerCommission s WHERE s.username = :username AND s.date = :date")
     List<PaymentDto> findRetailerCommissionsForToday(@Param("username") String username, @Param("date") LocalDate date);
+
+     @Query("SELECT o FROM RetailerCommission o WHERE YEAR(o.date) = :year AND MONTH(o.date) = :month AND o.username = :username")
+  List<RetailerCommission> findRetailerCommissionByMonth(@Param("year") int year, @Param("month") int month, @Param("username") String username);
+
+  @Query("SELECT o FROM RetailerCommission o WHERE o.username = :username AND  o.date BETWEEN :startDate AND :endDate")
+  List<RetailerCommission> findRetailerCommissionByDate(String username, LocalDate startDate, LocalDate endDate);
 }

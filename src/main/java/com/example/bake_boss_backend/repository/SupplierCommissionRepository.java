@@ -13,4 +13,10 @@ public interface SupplierCommissionRepository extends JpaRepository<SupplierComm
     @Query("SELECT new com.example.bake_boss_backend.dto.ReceiveDto(r.date, r.supplierName, r.note, r.amount) " +
             "FROM SupplierCommission r WHERE r.username=:username AND r.date = :date")
     List<ReceiveDto> findCommissionReceivesForToday(@Param("username") String username, @Param("date") LocalDate date);
+
+     @Query("SELECT o FROM SupplierCommission o WHERE YEAR(o.date) = :year AND MONTH(o.date) = :month AND o.username = :username")
+  List<SupplierCommission> findSupplierCommissionByMonth(@Param("year") int year, @Param("month") int month, @Param("username") String username);
+
+  @Query("SELECT o FROM SupplierCommission o WHERE o.username = :username AND  o.date BETWEEN :startDate AND :endDate")
+  List<SupplierCommission> findSupplierCommissionByDate(String username, LocalDate startDate, LocalDate endDate);
 }
