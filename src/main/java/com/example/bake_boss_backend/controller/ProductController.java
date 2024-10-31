@@ -2,31 +2,39 @@ package com.example.bake_boss_backend.controller;
 
 import java.time.LocalDate;
 import java.util.List;
-
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.bake_boss_backend.entity.ClosingSetup;
 import com.example.bake_boss_backend.entity.EmployeeInfo;
+import com.example.bake_boss_backend.entity.EmployeeTarget;
 import com.example.bake_boss_backend.entity.OrderInfo;
+import com.example.bake_boss_backend.entity.PaymentName;
 import com.example.bake_boss_backend.entity.ProductName;
 import com.example.bake_boss_backend.entity.ProductStock;
 import com.example.bake_boss_backend.entity.RetailerInfo;
 import com.example.bake_boss_backend.entity.SupplierName;
 import com.example.bake_boss_backend.repository.EmployeeInfoRepository;
+import com.example.bake_boss_backend.repository.EmployeeTargetRepository;
 import com.example.bake_boss_backend.repository.OrderInfoRepository;
+import com.example.bake_boss_backend.repository.PaymentNameRepository;
 import com.example.bake_boss_backend.repository.ProductNameRepository;
 import com.example.bake_boss_backend.repository.ProductStockrepository;
 import com.example.bake_boss_backend.repository.RetailerInfoRepository;
 import com.example.bake_boss_backend.repository.SupplierNameRepository;
 import com.example.bake_boss_backend.service.ProductStockService;
+import com.example.bake_boss_backend.service.RetailerBalanceService;
 
 @RestController
 @RequestMapping("/api")
@@ -46,6 +54,9 @@ public class ProductController {
     private ProductStockService productStockService;
 
     @Autowired
+    private RetailerBalanceService retailerBalanceService;
+
+    @Autowired
     private ProductNameRepository productNameRepository;
 
     @Autowired
@@ -56,6 +67,19 @@ public class ProductController {
 
     @Autowired
     private OrderInfoRepository orderInfoRepository;
+
+    @Autowired
+    private PaymentNameRepository paymentNameRepository;
+
+    @Autowired
+    private EmployeeTargetRepository employeeTargetRepository;
+
+    @PostMapping("/closingSetup")
+    public ClosingSetup saveOrUpdateClosingSetup(@RequestBody Map<String, String> request) {
+        LocalDate startDate = LocalDate.parse(request.get("startDate"));
+        LocalDate endDate = LocalDate.parse(request.get("endDate"));
+        return productStockService.saveOrUpdateClosingSetup(startDate, endDate);
+    }
 
     @PostMapping("/addProductName")
     public ResponseEntity<?> addProduct(@RequestBody ProductName productName) {
@@ -68,6 +92,22 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
     }
 
+    @PostMapping("/addEmployeeTarget")
+    public ResponseEntity<?> addOrUpdateEmployeeTarget(@RequestBody EmployeeTarget employeeTarget) {
+        Optional<EmployeeTarget> existingTarget = employeeTargetRepository
+                .findByEmployeeNameAndYearAndMonth(employeeTarget.getEmployeeName(), employeeTarget.getYear(), employeeTarget.getMonth());
+        if (existingTarget.isPresent()) {
+            EmployeeTarget targetToUpdate = existingTarget.get();
+            targetToUpdate.setAmount(employeeTarget.getAmount());
+            targetToUpdate.setTargetName(employeeTarget.getTargetName());
+            EmployeeTarget updatedTarget = employeeTargetRepository.save(targetToUpdate);
+            return ResponseEntity.ok(updatedTarget);
+        }
+
+        EmployeeTarget savedTarget = employeeTargetRepository.save(employeeTarget);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedTarget);
+    }
+
     @PostMapping("/addRetailerInfo")
     public ResponseEntity<?> addRetailer(@RequestBody RetailerInfo retailerInfo) {
         if (retailerInfoRepository.existsByRetailerName(retailerInfo.getRetailerName())) {
@@ -77,6 +117,17 @@ public class ProductController {
         }
         RetailerInfo savedRetailer = retailerInfoRepository.save(retailerInfo);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedRetailer);
+    }
+
+    @PutMapping("/updateRetailerInfo/{id}")
+    public ResponseEntity<RetailerInfo> updateRetailerInfo(@PathVariable Long id,
+            @RequestBody RetailerInfo retailerInfo) {
+        try {
+            RetailerInfo updatedRetailer = retailerBalanceService.updateRetailerInfo(id, retailerInfo);
+            return ResponseEntity.ok(updatedRetailer);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(null);
+        }
     }
 
     @PostMapping("/addEmployeeInfo")
@@ -101,11 +152,23 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedSupplier);
     }
 
+    @PostMapping("/addPaymentName")
+    public ResponseEntity<?> addPaymentName(@RequestBody PaymentName paymentName) {
+        if (paymentNameRepository.existsByUsernameAndPaymentPerson(paymentName.getUsername(),
+                paymentName.getPaymentPerson())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Name " + paymentName.getPaymentPerson() + " is already exists!");
+        }
+        PaymentName savedName = paymentNameRepository.save(paymentName);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedName);
+    }
+
     @PostMapping("/addAllProducts")
     public List<ProductStock> saveProducts(@RequestBody List<ProductStock> allItems) {
         for (ProductStock newItem : allItems) {
             Optional<ProductStock> latestProductStockOpt = productStockrepository
-                    .findTopByProductNameAndUsernameOrderByProductIdDesc(newItem.getProductName(), newItem.getUsername());
+                    .findTopByProductNameAndUsernameOrderByProductIdDesc(newItem.getProductName(),
+                            newItem.getUsername());
 
             if (latestProductStockOpt.isPresent()) {
                 ProductStock latestProductStock = latestProductStockOpt.get();
@@ -133,36 +196,41 @@ public class ProductController {
 
     @PostMapping("/productDistribution")
     public List<ProductStock> saveDistribution(@RequestBody List<ProductStock> allItems) {
-    for (ProductStock newItem : allItems) {
-        // Update the ProductStock as you are already doing
-        Optional<ProductStock> latestProductStockOpt = productStockrepository
-                .findTopByProductNameAndUsernameOrderByProductIdDesc(newItem.getProductName(), newItem.getUsername());
+        for (ProductStock newItem : allItems) {
+            // Update the ProductStock as you are already doing
+            Optional<ProductStock> latestProductStockOpt = productStockrepository
+                    .findTopByProductNameAndUsernameOrderByProductIdDesc(newItem.getProductName(),
+                            newItem.getUsername());
 
-        if (latestProductStockOpt.isPresent()) {
-            ProductStock latestProductStock = latestProductStockOpt.get();
-            newItem.setCostPrice(latestProductStock.getCostPrice());
-            newItem.setRemainingQty(latestProductStock.getRemainingQty() - newItem.getProductQty());
-            newItem.setPurchasePrice(latestProductStock.getPurchasePrice());
-            newItem.setSupplier(latestProductStock.getSupplier());
-        }
-        productStockrepository.save(newItem);
+            if (latestProductStockOpt.isPresent()) {
+                ProductStock latestProductStock = latestProductStockOpt.get();
+                newItem.setCostPrice(latestProductStock.getCostPrice());
+                newItem.setRemainingQty(latestProductStock.getRemainingQty() - newItem.getProductQty());
+                newItem.setPurchasePrice(latestProductStock.getPurchasePrice());
+                newItem.setSupplier(latestProductStock.getSupplier());
+            }
+            productStockrepository.save(newItem);
 
-        // Now update the deliveredQty in the OrderInfo entity
-        Long orderId = newItem.getOrderId(); // Assuming orderId is available in ProductStock
-        Optional<OrderInfo> orderInfoOpt = orderInfoRepository.findById(orderId);
-        if (orderInfoOpt.isPresent()) {
-            OrderInfo orderInfo = orderInfoOpt.get();
-            orderInfo.setDeliveredQty(orderInfo.getDeliveredQty() + newItem.getProductQty());
-            orderInfoRepository.save(orderInfo);
+            // Now update the deliveredQty in the OrderInfo entity
+            Long orderId = newItem.getOrderId(); // Assuming orderId is available in ProductStock
+            Optional<OrderInfo> orderInfoOpt = orderInfoRepository.findById(orderId);
+            if (orderInfoOpt.isPresent()) {
+                OrderInfo orderInfo = orderInfoOpt.get();
+                orderInfo.setDeliveredQty(orderInfo.getDeliveredQty() + newItem.getProductQty());
+                orderInfoRepository.save(orderInfo);
+            }
         }
+        return allItems;
     }
-    return allItems;
-}
-
 
     @GetMapping("/getRetailerInfo")
     public List<RetailerInfo> getRetailer() {
         return retailerInfoRepository.findAll();
+    }
+
+    @GetMapping("/getRetailerInfoByRetailer")
+    public RetailerInfo getRetailerInfo(@RequestParam String retailerName) {
+        return retailerInfoRepository.findByRetailerName(retailerName);
     }
 
     @GetMapping("/getSalesRetailerInfo")
@@ -178,6 +246,11 @@ public class ProductController {
     @GetMapping("/getSuppliersName")
     public List<SupplierName> getSupplierNameByUsername(@RequestParam String username) {
         return supplierNameRepository.getSupplierNameByUsername(username);
+    }
+
+    @GetMapping("/getPaymentPerson")
+    public List<PaymentName> getPaymentNameByUsername(@RequestParam String username) {
+        return paymentNameRepository.getPaymentPersonByUsername(username);
     }
 
     @GetMapping("/getProductName")
@@ -238,5 +311,10 @@ public class ProductController {
     @GetMapping("/getPendingOrder")
     public List<OrderInfo> getPendingOrdersByUsername(String username) {
         return orderInfoRepository.findByUsernameAndPendingQuantity(username);
+    }
+
+    @GetMapping("/getTotalSoldToday")
+    public Double getTotalSoldToday() {
+        return productStockService.getTotalSoldProductQtyToday();
     }
 }

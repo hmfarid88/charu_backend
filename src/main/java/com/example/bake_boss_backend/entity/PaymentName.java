@@ -12,16 +12,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RetailerInfo {
+public class PaymentName {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String retailerName;
-    private String retailerCode;
-    private String thanaName;
-    private String zillaName;
-    private String areaName;
-    private String mobileNumber;
-    private String salesPerson;
-    private String status;
+    private int id;
+    private String paymentPerson;
+    private String username;
 }

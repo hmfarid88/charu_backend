@@ -20,13 +20,23 @@ public class RetailerBalanceController {
     private RetailerBalanceService retailerBalanceService;
 
     @GetMapping("/retailerBalance")
-    public List<RetailerBalanceDTO> retailerBalance(@RequestParam String username) {
-        return retailerBalanceService.retailerBalance(username);
+    public List<RetailerBalanceDTO> retailerBalance() {
+        return retailerBalanceService.retailerBalance();
     }
 
+    @GetMapping("/datewiseRetailerBalance")
+    public List<RetailerBalanceDTO> datewiseRetailerBalance(LocalDate startDate, LocalDate endDate) {
+        return retailerBalanceService.datewiseRetailerBalance(startDate, endDate);
+    }
+  
     @GetMapping("/salesRetailerBalance")
     public List<RetailerBalanceDTO> salesRetailerBalance(@RequestParam String salesPerson) {
         return retailerBalanceService.salesRetailerBalance(salesPerson);
+    }
+
+    @GetMapping("/salesDatewiseRetailerBalance")
+    public List<RetailerBalanceDTO> salesDatewiseRetailerBalance(String salesPerson, LocalDate startDate, LocalDate endDate) {
+        return retailerBalanceService.salesDatewiseRetailerBalance(salesPerson, startDate, endDate);
     }
 
     @GetMapping("/datewise-details")

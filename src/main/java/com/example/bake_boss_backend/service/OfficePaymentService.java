@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 
 import com.example.bake_boss_backend.dto.NetSumAmountDto;
 import com.example.bake_boss_backend.dto.PaymentDto;
+import com.example.bake_boss_backend.dto.PaymentReceiveSummaryDTO;
+import com.example.bake_boss_backend.entity.ClosingSetup;
 import com.example.bake_boss_backend.entity.OfficePayment;
+import com.example.bake_boss_backend.repository.ClosingSetupRepository;
 import com.example.bake_boss_backend.repository.ExpenseRepository;
 import com.example.bake_boss_backend.repository.OfficePaymentRepository;
 import com.example.bake_boss_backend.repository.RetailerCommissionRepository;
@@ -33,6 +36,9 @@ public class OfficePaymentService {
     @Autowired
     private RetailerCommissionRepository retailerCommissionRepository;
 
+    @Autowired
+    private ClosingSetupRepository closingSetupRepository;
+
     public NetSumAmountDto getNetSumAmountBeforeToday(String username, LocalDate date) {
         Double netSumAmount = retailerPaymentRepository.findNetSumAmountBeforeToday(username, date);
         return new NetSumAmountDto(netSumAmount);
@@ -42,7 +48,8 @@ public class OfficePaymentService {
         List<PaymentDto> userExpense = expenseRepository.findExpenseForToday(username, date);
         List<PaymentDto> userPayments = officePaymentRepository.findPaymentsForToday(username, date);
         List<PaymentDto> supplierPayments = supplierPaymentRepository.findSupplierPaymentsForToday(username, date);
-        List<PaymentDto> retailerCommission= retailerCommissionRepository.findRetailerCommissionsForToday(username, date);
+        List<PaymentDto> retailerCommission = retailerCommissionRepository.findRetailerCommissionsForToday(username,
+                date);
         List<PaymentDto> combinedPayments = new ArrayList<>();
         combinedPayments.addAll(userExpense);
         combinedPayments.addAll(userPayments);
@@ -60,5 +67,20 @@ public class OfficePaymentService {
 
     public List<OfficePayment> getDatewiseOfficePay(String username, LocalDate startDate, LocalDate endDate) {
         return officePaymentRepository.findPaymentsByDate(username, startDate, endDate);
+    }
+
+    public List<PaymentReceiveSummaryDTO> getDatewisePaymentAndReceiveSummary() {
+        ClosingSetup lastClosingSetup = closingSetupRepository.findLastClosingSetup();
+
+        if (lastClosingSetup != null) {
+            LocalDate startDate = lastClosingSetup.getStartDate();
+            LocalDate endDate = lastClosingSetup.getEndDate();
+
+            // Get the payment and receive summary for the given date range
+            return officePaymentRepository.findDatewisePaymentAndReceiveSummary(startDate, endDate);
+        }
+
+        // Return an empty list if no ClosingSetup is found
+        return List.of();
     }
 }

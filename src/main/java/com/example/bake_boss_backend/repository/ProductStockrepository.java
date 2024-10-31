@@ -51,6 +51,20 @@ public interface ProductStockrepository extends JpaRepository<ProductStock, Long
         +
         " GROUP BY m.date,  m.productName")
         List<DetailsSupplierDTO> findProductsValueBySupplierAndUsername(String username, String supplier, LocalDate startDate, LocalDate endDate);
+       
+        @Query("SELECT SUM(ps.dpRate * ps.productQty) FROM ProductStock ps " +
+        "JOIN RetailerInfo ri ON ps.customer = ri.retailerName " +
+        "WHERE ps.status = 'sold' AND ri.salesPerson = :employeeName " +
+        "AND EXTRACT(YEAR FROM ps.date) = :year " +
+        "AND EXTRACT(MONTH FROM ps.date) = :month")
+        Double getSoldValueForEmployee(@Param("employeeName") String employeeName, @Param("year") int year, @Param("month") int month);
 
+        @Query("SELECT SUM(ps.productQty) FROM ProductStock ps WHERE ps.customer IN :retailerNames AND YEAR(ps.date) = :year AND MONTH(ps.date) = :month AND ps.status = 'sold'")
+        Double getTotalProductQtyForRetailers(@Param("retailerNames") List<String> retailerNames, @Param("year") int year, @Param("month") int month);
         
+        @Query("SELECT SUM(ps.dpRate * ps.productQty) FROM ProductStock ps WHERE ps.customer IN :retailerNames AND YEAR(ps.date) = :year AND MONTH(ps.date) = :month AND ps.status = 'sold'")
+        Double getSoldValueForRetailers(@Param("retailerNames") List<String> retailerNames, @Param("year") int year, @Param("month") int month);
+        
+        @Query("SELECT SUM(ps.productQty) FROM ProductStock ps WHERE ps.status = 'sold' AND ps.date = CURRENT_DATE")
+        Double findTotalSoldProductQtyToday();
 }

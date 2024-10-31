@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.bake_boss_backend.dto.EmployeeMonthlySummary;
 import com.example.bake_boss_backend.dto.NetSumAmountDto;
 import com.example.bake_boss_backend.dto.PaymentDto;
+import com.example.bake_boss_backend.dto.PaymentReceiveSummaryDTO;
 import com.example.bake_boss_backend.dto.ReceiveDto;
 import com.example.bake_boss_backend.entity.EmployeePayment;
 import com.example.bake_boss_backend.entity.Expense;
@@ -29,6 +31,7 @@ import com.example.bake_boss_backend.repository.OfficePaymentRepository;
 import com.example.bake_boss_backend.repository.RetailerPaymentRepository;
 import com.example.bake_boss_backend.repository.SupplierCommissionRepository;
 import com.example.bake_boss_backend.repository.SupplierPaymentRepository;
+import com.example.bake_boss_backend.service.EmployeeTargetService;
 import com.example.bake_boss_backend.service.ExpenseService;
 import com.example.bake_boss_backend.service.OfficePaymentService;
 import com.example.bake_boss_backend.service.ReceiveService;
@@ -54,6 +57,9 @@ public class TransactionController {
     @Autowired
     private RetailerPaymentService retailerPaymentService;
 
+    @Autowired
+    private EmployeeTargetService employeeTargetService;
+
     private final OfficeReceiveRepository officeReceiveRepository;
     private final OfficePaymentRepository officePaymentRepository;
     private final RetailerPaymentRepository retailerPaymentRepository;
@@ -77,8 +83,8 @@ public class TransactionController {
         this.supplierPaymentRepository = supplierPaymentRepository;
         this.expenseRepository = expenseRepository;
         this.employeePaymentRepository = employeePaymentRepository;
-        this.supplierCommissionRepository=supplierCommissionRepository;
-        this.retailerCommissionRepository=retailerCommissionRepository;
+        this.supplierCommissionRepository = supplierCommissionRepository;
+        this.retailerCommissionRepository = retailerCommissionRepository;
     }
 
     @PostMapping("/officeReceive")
@@ -174,7 +180,8 @@ public class TransactionController {
     }
 
     @GetMapping("/getDatewiseOfficeReceive")
-    public List<OfficeReceive> getDatewiseReceive(@RequestParam String username, LocalDate startDate, LocalDate endDate) {
+    public List<OfficeReceive> getDatewiseReceive(@RequestParam String username, LocalDate startDate,
+            LocalDate endDate) {
         return receiveService.getDatewiseOfficeReceive(username, startDate, endDate);
     }
 
@@ -184,7 +191,8 @@ public class TransactionController {
     }
 
     @GetMapping("/getDatewiseRetailerPayment")
-    public List<RetailerPayment> getDatewiseRetailerPayForCurrentMonth(@RequestParam String username, LocalDate startDate, LocalDate endDate) {
+    public List<RetailerPayment> getDatewiseRetailerPayForCurrentMonth(@RequestParam String username,
+            LocalDate startDate, LocalDate endDate) {
         return retailerPaymentService.getDatewiseRetailerPay(username, startDate, endDate);
     }
 
@@ -194,7 +202,8 @@ public class TransactionController {
     }
 
     @GetMapping("/getDatewiseEmployeePayment")
-    public List<EmployeePayment> getDatewiseEmployeePayment(@RequestParam String username, LocalDate startDate, LocalDate endDate) {
+    public List<EmployeePayment> getDatewiseEmployeePayment(@RequestParam String username, LocalDate startDate,
+            LocalDate endDate) {
         return retailerPaymentService.getDatewiseEmployeePay(username, startDate, endDate);
     }
 
@@ -204,7 +213,8 @@ public class TransactionController {
     }
 
     @GetMapping("/getDatewiseRetailerCommission")
-    public List<RetailerCommission> getDatewiseRetailerCommission(@RequestParam String username, LocalDate startDate, LocalDate endDate) {
+    public List<RetailerCommission> getDatewiseRetailerCommission(@RequestParam String username, LocalDate startDate,
+            LocalDate endDate) {
         return retailerPaymentService.getDatewiseRetailerCommission(username, startDate, endDate);
     }
 
@@ -214,7 +224,28 @@ public class TransactionController {
     }
 
     @GetMapping("/getDatewiseSupplierCommission")
-    public List<SupplierCommission> getDatewiseSupplierCommission(@RequestParam String username, LocalDate startDate, LocalDate endDate) {
+    public List<SupplierCommission> getDatewiseSupplierCommission(@RequestParam String username, LocalDate startDate,
+            LocalDate endDate) {
         return supplierPaymentService.getDatewiseSupplierCommission(username, startDate, endDate);
+    }
+
+    @GetMapping("/payment-receive-summary")
+    public List<PaymentReceiveSummaryDTO> getPaymentReceiveSummary() {
+        return officePaymentService.getDatewisePaymentAndReceiveSummary();
+    }
+
+    @GetMapping("/employee-targetList")
+    public List<EmployeeMonthlySummary> getEmployeeMonthlySummary() {
+        return employeeTargetService.getAllEmployeeMonthlySummaries();
+    }
+
+    @GetMapping("/singleEmployee-targetList")
+    public List<EmployeeMonthlySummary> getEmployeeTargetSummary(@RequestParam String employeeName) {
+        return employeeTargetService.getEmployeeMonthlySummaries(employeeName);
+    }
+
+    @GetMapping("/employee-total-taken")
+    public Double getSumOfAmountByEmployeeNameYearMonthAndUsername(String username, String employeeName, int year, int month) {
+        return employeePaymentRepository.findSumOfAmountByEmployeeNameYearMonthAndUsername(username, employeeName, year, month);
     }
 }

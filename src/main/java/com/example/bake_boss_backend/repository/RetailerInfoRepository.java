@@ -11,4 +11,6 @@ public interface RetailerInfoRepository extends JpaRepository<RetailerInfo, Long
     boolean existsByRetailerName(String retailerName);
 
     List<RetailerInfo> findBySalesPerson(String salesPerson);
+
+    RetailerInfo findByRetailerName(String retailerName);
 }
