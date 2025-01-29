@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.bake_boss_backend.entity.RetailerCommission;
 import com.example.bake_boss_backend.entity.SupplierCommission;
 import com.example.bake_boss_backend.entity.SupplierPayment;
 import com.example.bake_boss_backend.repository.SupplierCommissionRepository;

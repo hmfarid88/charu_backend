@@ -225,7 +225,7 @@ public class ProductController {
 
     @GetMapping("/getRetailerInfo")
     public List<RetailerInfo> getRetailer() {
-        return retailerInfoRepository.findAll();
+        return retailerInfoRepository.findAllByOrderByRetailerNameAsc();
     }
 
     @GetMapping("/getRetailerInfoByRetailer")
@@ -316,5 +316,10 @@ public class ProductController {
     @GetMapping("/getTotalSoldToday")
     public Double getTotalSoldToday() {
         return productStockService.getTotalSoldProductQtyToday();
+    }
+
+    @GetMapping("findLastQty")
+    public Double getLastRemainingQty(String username, String productName) {
+        return productStockrepository.findLastRemainingQtyByUsernameAndProductName(username, productName);
     }
 }

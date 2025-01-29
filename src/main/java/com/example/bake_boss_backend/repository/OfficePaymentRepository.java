@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.example.bake_boss_backend.dto.DetailsPayReceiveDTO;
 import com.example.bake_boss_backend.dto.PaymentDto;
-import com.example.bake_boss_backend.dto.PaymentReceiveSummaryDTO;
 import com.example.bake_boss_backend.entity.OfficePayment;
 
 public interface OfficePaymentRepository extends JpaRepository<OfficePayment, Long> {
@@ -22,14 +22,12 @@ public interface OfficePaymentRepository extends JpaRepository<OfficePayment, Lo
     @Query("SELECT o FROM OfficePayment o WHERE o.username = :username AND  o.date BETWEEN :startDate AND :endDate")
     List<OfficePayment> findPaymentsByDate(String username, LocalDate startDate, LocalDate endDate);
 
+    @Query("SELECT p.paymentName, SUM(p.amount) FROM OfficePayment p GROUP BY p.paymentName")
+    List<Object[]> findTotalPaymentAmountGroupedByPaymentName();
 
-    @Query("SELECT new com.example.bake_boss_backend.dto.PaymentReceiveSummaryDTO(p.date, p.paymentName, "
-         + "SUM(p.amount), "
-         + "(SELECT COALESCE(SUM(r.amount), 0) FROM OfficeReceive r WHERE r.receiveName = p.paymentName AND r.date = p.date), "
-         + "SUM(p.amount) - (SELECT COALESCE(SUM(r.amount), 0) FROM OfficeReceive r WHERE r.receiveName = p.paymentName AND r.date = p.date)) "
-         + "FROM OfficePayment p "
-         + "WHERE p.date BETWEEN :startDate AND :endDate "
-         + "GROUP BY p.date, p.paymentName "
-         + "ORDER BY p.date ASC, p.paymentName ASC")
-    List<PaymentReceiveSummaryDTO> findDatewisePaymentAndReceiveSummary(LocalDate startDate, LocalDate endDate);
+    @Query("SELECT new com.example.bake_boss_backend.dto.DetailsPayReceiveDTO(p.date, p.paymentNote, p.amount, 0.0) FROM OfficePayment p where p.username= :username AND p.paymentName= :paymentName")
+    List<DetailsPayReceiveDTO> findDetailsPaymentByPaymentNameAndUsername(@Param("username") String username, @Param("paymentName") String name);
+   
+
+
 }

@@ -8,7 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.example.bake_boss_backend.dto.DetailsSupplierDTO;
+import com.example.bake_boss_backend.dto.RetailerDetailsDTO;
+import com.example.bake_boss_backend.dto.SupplierDetailsDTO;
 import com.example.bake_boss_backend.entity.ProductStock;
 
 public interface ProductStockrepository extends JpaRepository<ProductStock, Long> {
@@ -43,14 +44,6 @@ public interface ProductStockrepository extends JpaRepository<ProductStock, Long
         @Query("SELECT ps.supplier, SUM(ps.purchasePrice * ps.productQty) " +
         "FROM ProductStock ps WHERE ps.username = :username AND ps.status='stored' GROUP BY ps.supplier")
         List<Object[]> findTotalProductCostGroupedBySupplierAndUsername(String username);
-
-        @Query("SELECT new com.example.bake_boss_backend.dto.DetailsSupplierDTO(m.date,  m.productName, SUM(m.productQty), SUM(m.purchasePrice * m.productQty)) "
-        +
-        "FROM ProductStock m " +
-        "WHERE m.username = :username AND m.supplier = :supplier AND m.date BETWEEN :startDate AND :endDate"
-        +
-        " GROUP BY m.date,  m.productName")
-        List<DetailsSupplierDTO> findProductsValueBySupplierAndUsername(String username, String supplier, LocalDate startDate, LocalDate endDate);
        
         @Query("SELECT SUM(ps.dpRate * ps.productQty) FROM ProductStock ps " +
         "JOIN RetailerInfo ri ON ps.customer = ri.retailerName " +
@@ -67,4 +60,19 @@ public interface ProductStockrepository extends JpaRepository<ProductStock, Long
         
         @Query("SELECT SUM(ps.productQty) FROM ProductStock ps WHERE ps.status = 'sold' AND ps.date = CURRENT_DATE")
         Double findTotalSoldProductQtyToday();
+
+        @Query("SELECT ps.remainingQty FROM ProductStock ps " +
+           "WHERE ps.username = :username AND ps.productName = :productName " +
+           "ORDER BY ps.productId DESC LIMIT 1")
+        Double findLastRemainingQtyByUsernameAndProductName(@Param("username") String username, @Param("productName") String productName);
+
+       @Query("SELECT new com.example.bake_boss_backend.dto.RetailerDetailsDTO(ps.date, ps.productName, SUM(ps.productQty), SUM(ps.productQty*ps.dpRate), 0.0, 0.0) FROM ProductStock ps WHERE ps.username = :username AND ps.status='sold' AND ps.customer = :retailerName AND ps.date BETWEEN :startDate AND :endDate GROUP BY ps.date, ps.productName")
+       List<RetailerDetailsDTO> findProductDetailsByUsernameAndRetailerName(String username, String retailerName, LocalDate startDate, LocalDate endDate);
+      
+       @Query("SELECT new com.example.bake_boss_backend.dto.RetailerDetailsDTO(ps.date, ps.productName, SUM(ps.productQty), SUM(ps.productQty*ps.dpRate), 0.0, 0.0) FROM ProductStock ps JOIN RetailerInfo ri ON ps.customer = ri.retailerName WHERE ri.salesPerson = :salesPerson AND ps.customer = :retailerName AND ps.status='sold' AND ps.date BETWEEN :startDate AND :endDate GROUP BY ps.date, ps.productName")
+       List<RetailerDetailsDTO> findProductDetailsBySalesPersonAndRetailerName(String salesPerson, String retailerName, LocalDate startDate, LocalDate endDate);
+
+       @Query("SELECT new com.example.bake_boss_backend.dto.SupplierDetailsDTO(ps.date, ps.productName, SUM(ps.productQty), SUM(ps.productQty*ps.purchasePrice), 0.0, 0.0) FROM ProductStock ps WHERE ps.username = :username AND ps.status='stored' AND ps.supplier = :supplierName  GROUP BY ps.date, ps.productName")
+       List<SupplierDetailsDTO> findProductDetailsByUsernameAndSupplierName(String username, String supplierName);
+
 }

@@ -11,7 +11,6 @@ import com.example.bake_boss_backend.dto.ReceiveDto;
 import com.example.bake_boss_backend.entity.OfficeReceive;
 import com.example.bake_boss_backend.repository.OfficeReceiveRepository;
 import com.example.bake_boss_backend.repository.RetailerPaymentRepository;
-import com.example.bake_boss_backend.repository.SupplierCommissionRepository;
 
 @Service
 public class ReceiveService {
@@ -21,14 +20,11 @@ public class ReceiveService {
     @Autowired
     private RetailerPaymentRepository retailerPaymentRepository;
 
-    @Autowired
-    private SupplierCommissionRepository supplierCommissionRepository;
-
+  
     public List<ReceiveDto> findReceivesForToday(String username, LocalDate date) {
         List<ReceiveDto> receives = new ArrayList<>();
         receives.addAll(officeReceiveRepository.findOfficeReceivesForToday(username, date));
         receives.addAll(retailerPaymentRepository.findRetailerPaymentsForToday(username, date));
-        receives.addAll(supplierCommissionRepository.findCommissionReceivesForToday(username, date));
         return receives;
     }
 

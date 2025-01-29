@@ -13,4 +13,6 @@ public interface RetailerInfoRepository extends JpaRepository<RetailerInfo, Long
     List<RetailerInfo> findBySalesPerson(String salesPerson);
 
     RetailerInfo findByRetailerName(String retailerName);
+
+    List<RetailerInfo> findAllByOrderByRetailerNameAsc();
 }

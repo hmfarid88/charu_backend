@@ -10,8 +10,9 @@ import lombok.Data;
 public class RetailerDetailsDTO {
     private LocalDate date;
     private String productName;
+    private Double productQty;
     private Double productValue;
     private Double payment;
     private Double commission;
-    private Double balance;
+
 }

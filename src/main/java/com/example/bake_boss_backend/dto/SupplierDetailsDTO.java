@@ -4,15 +4,15 @@ import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class DetailsSupplierDTO {
+public class SupplierDetailsDTO {
     private LocalDate date;
     private String productName;
-    private Double totalQty;
-    private Double totalValue;
-
+    private Double productQty;
+    private Double productValue;
+    private Double payment;
+    private Double commission;
+   
 }

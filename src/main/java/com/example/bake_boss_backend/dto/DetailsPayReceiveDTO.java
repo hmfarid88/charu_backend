@@ -4,13 +4,12 @@ import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class DetailsSupplierPayDTO {
+public class DetailsPayReceiveDTO {
     private LocalDate date;
-    private String note;
-    private Double amount;
+    private String paymentNote;
+    private Double payment;
+    private Double receive;
 }

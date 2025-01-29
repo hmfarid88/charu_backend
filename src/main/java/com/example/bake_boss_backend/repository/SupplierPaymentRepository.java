@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.example.bake_boss_backend.dto.DetailsSupplierPayDTO;
 import com.example.bake_boss_backend.dto.PaymentDto;
+import com.example.bake_boss_backend.dto.SupplierDetailsDTO;
 import com.example.bake_boss_backend.entity.SupplierPayment;
 
 public interface SupplierPaymentRepository extends JpaRepository<SupplierPayment, Long> {
@@ -26,10 +26,6 @@ public interface SupplierPaymentRepository extends JpaRepository<SupplierPayment
       "FROM SupplierPayment sp WHERE sp.username = :username GROUP BY sp.supplierName")
   List<Object[]> findTotalPaymentGroupedBySupplierAndUsername(String username);
 
-  @Query("SELECT new com.example.bake_boss_backend.dto.DetailsSupplierPayDTO(sp.date, sp.note, SUM(sp.amount)) " +
-      "FROM SupplierPayment sp " +
-      "WHERE sp.username = :username AND sp.supplierName = :supplierName AND sp.date BETWEEN :startDate AND :endDate " +
-      "GROUP BY sp.date, sp.note")
-  List<DetailsSupplierPayDTO> findPaymentValueBySupplierAndUsername(String username, String supplierName, LocalDate startDate, LocalDate endDate);
-
+  @Query("SELECT new com.example.bake_boss_backend.dto.SupplierDetailsDTO(rp.date, 'No', 0.0, 0.0, SUM(rp.amount), 0.0) FROM SupplierPayment rp WHERE rp.username = :username AND  rp.supplierName = :supplierName GROUP BY rp.date")
+  List<SupplierDetailsDTO> findPaymentDetailsByUsernameAndSupplierName(String username, String supplierName);
 }

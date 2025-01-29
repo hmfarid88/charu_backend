@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.example.bake_boss_backend.dto.DetailsPayReceiveDTO;
 import com.example.bake_boss_backend.dto.ReceiveDto;
 import com.example.bake_boss_backend.entity.OfficeReceive;
 
@@ -20,4 +21,10 @@ public interface OfficeReceiveRepository extends JpaRepository<OfficeReceive, Lo
 
  @Query("SELECT o FROM OfficeReceive o WHERE o.username = :username AND  o.date BETWEEN :startDate AND :endDate")
     List<OfficeReceive> findReceiveByDate(String username, LocalDate startDate, LocalDate endDate);
+
+    @Query("SELECT r.receiveName, SUM(r.amount) FROM OfficeReceive r GROUP BY r.receiveName")
+    List<Object[]> findTotalReceiveAmountGroupedByReceiveName();
+
+    @Query("SELECT new com.example.bake_boss_backend.dto.DetailsPayReceiveDTO(p.date, p.receiveNote, 0.0, p.amount) FROM OfficeReceive p where p.username= :username AND p.receiveName= :receiveName")
+    List<DetailsPayReceiveDTO> findDetailsReceiveByReceiveNameAndUsername(@Param("username") String username, @Param("receiveName") String name);
 }

@@ -39,21 +39,30 @@ public class RetailerBalanceController {
         return retailerBalanceService.salesDatewiseRetailerBalance(salesPerson, startDate, endDate);
     }
 
-    @GetMapping("/datewise-details")
-    public List<RetailerDetailsDTO> getDatewiseDetailsByRetailerAndUsername(
+    @GetMapping("/retailer-details")
+    public List<RetailerDetailsDTO> getDetailsByRetailerAndUsername(
             @RequestParam String retailerName,
-            @RequestParam String username,
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate) {
-        return retailerBalanceService.getDatewiseDetailsByRetailerAndUsername(retailerName, username, startDate, endDate);
+            @RequestParam String username){
+        return retailerBalanceService.getDatewiseDetailsByRetailerAndUsername(retailerName, username);
     }
 
-    @GetMapping("/sales-datewise-details")
-    public List<RetailerDetailsDTO> getDatewiseDetailsByRetailerAndSalesPerson(
+    @GetMapping("/datewise-retailer-details")
+    public List<RetailerDetailsDTO> getDatewiseDetailsByRetailerAndUsername(LocalDate startDate, LocalDate endDate,
             @RequestParam String retailerName,
-            @RequestParam String salesPerson,
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate) {
-        return retailerBalanceService.getDatewiseDetailsByRetailerAndSalesPerson(retailerName, salesPerson, startDate, endDate);
+            @RequestParam String username){
+        return retailerBalanceService.getDatewiseRetailerDetailsByRetailerAndUsername(retailerName, username, startDate, endDate);
+    }
+
+    @GetMapping("/sales-retailer-details")
+    public List<RetailerDetailsDTO> getDetailsByRetailerAndSalesPerson(
+            @RequestParam String retailerName, @RequestParam String salesPerson) {
+        return retailerBalanceService.getDetailsByRetailerAndSalesPerson(retailerName, salesPerson);
+    }
+
+    @GetMapping("/sales-datewise-retailer-details")
+    public List<RetailerDetailsDTO> getDatewiseDetailsByRetailerAndSalesPerson(LocalDate startDate, LocalDate endDate,
+            @RequestParam String retailerName,
+            @RequestParam String salesPerson){
+        return retailerBalanceService.getSalesDatewiseDetailsByRetailerAndSalesPerson(salesPerson, retailerName, startDate, endDate);
     }
 }

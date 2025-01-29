@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.bake_boss_backend.dto.EmployeeMonthlySummary;
 import com.example.bake_boss_backend.dto.NetSumAmountDto;
 import com.example.bake_boss_backend.dto.PaymentDto;
-import com.example.bake_boss_backend.dto.PaymentReceiveSummaryDTO;
 import com.example.bake_boss_backend.dto.ReceiveDto;
 import com.example.bake_boss_backend.entity.EmployeePayment;
 import com.example.bake_boss_backend.entity.Expense;
@@ -229,11 +228,7 @@ public class TransactionController {
         return supplierPaymentService.getDatewiseSupplierCommission(username, startDate, endDate);
     }
 
-    @GetMapping("/payment-receive-summary")
-    public List<PaymentReceiveSummaryDTO> getPaymentReceiveSummary() {
-        return officePaymentService.getDatewisePaymentAndReceiveSummary();
-    }
-
+   
     @GetMapping("/employee-targetList")
     public List<EmployeeMonthlySummary> getEmployeeMonthlySummary() {
         return employeeTargetService.getAllEmployeeMonthlySummaries();
