@@ -66,10 +66,10 @@ public interface ProductStockrepository extends JpaRepository<ProductStock, Long
            "ORDER BY ps.productId DESC LIMIT 1")
         Double findLastRemainingQtyByUsernameAndProductName(@Param("username") String username, @Param("productName") String productName);
 
-       @Query("SELECT new com.example.bake_boss_backend.dto.RetailerDetailsDTO(ps.date, ps.productName, SUM(ps.productQty), SUM(ps.productQty*ps.dpRate), 0.0, 0.0) FROM ProductStock ps WHERE ps.username = :username AND ps.status='sold' AND ps.customer = :retailerName AND ps.date BETWEEN :startDate AND :endDate GROUP BY ps.date, ps.productName")
+       @Query("SELECT new com.example.bake_boss_backend.dto.RetailerDetailsDTO(ps.date, ps.note, ps.productName, SUM(ps.productQty), SUM(ps.productQty*ps.dpRate), 0.0, 0.0) FROM ProductStock ps WHERE ps.username = :username AND ps.status='sold' AND ps.customer = :retailerName AND ps.date BETWEEN :startDate AND :endDate GROUP BY ps.date, ps.note, ps.productName")
        List<RetailerDetailsDTO> findProductDetailsByUsernameAndRetailerName(String username, String retailerName, LocalDate startDate, LocalDate endDate);
       
-       @Query("SELECT new com.example.bake_boss_backend.dto.RetailerDetailsDTO(ps.date, ps.productName, SUM(ps.productQty), SUM(ps.productQty*ps.dpRate), 0.0, 0.0) FROM ProductStock ps JOIN RetailerInfo ri ON ps.customer = ri.retailerName WHERE ri.salesPerson = :salesPerson AND ps.customer = :retailerName AND ps.status='sold' AND ps.date BETWEEN :startDate AND :endDate GROUP BY ps.date, ps.productName")
+       @Query("SELECT new com.example.bake_boss_backend.dto.RetailerDetailsDTO(ps.date, ps.note, ps.productName, SUM(ps.productQty), SUM(ps.productQty*ps.dpRate), 0.0, 0.0) FROM ProductStock ps JOIN RetailerInfo ri ON ps.customer = ri.retailerName WHERE ri.salesPerson = :salesPerson AND ps.customer = :retailerName AND ps.status='sold' AND ps.date BETWEEN :startDate AND :endDate GROUP BY ps.date, ps.note, ps.productName")
        List<RetailerDetailsDTO> findProductDetailsBySalesPersonAndRetailerName(String salesPerson, String retailerName, LocalDate startDate, LocalDate endDate);
 
        @Query("SELECT new com.example.bake_boss_backend.dto.SupplierDetailsDTO(ps.date, ps.productName, SUM(ps.productQty), SUM(ps.productQty*ps.purchasePrice), 0.0, 0.0) FROM ProductStock ps WHERE ps.username = :username AND ps.status='stored' AND ps.supplier = :supplierName  GROUP BY ps.date, ps.productName")

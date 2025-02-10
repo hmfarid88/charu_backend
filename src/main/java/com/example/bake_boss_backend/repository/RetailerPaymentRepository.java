@@ -43,10 +43,10 @@ public interface RetailerPaymentRepository extends JpaRepository<RetailerPayment
        List<RetailerPayment> findDatewiseRetailerPaymentByUsername(String username, LocalDate startDate, LocalDate endDate);
 
       
-       @Query("SELECT new com.example.bake_boss_backend.dto.RetailerDetailsDTO(rp.date, 'No', 0.0, 0.0, SUM(rp.amount), 0.0) FROM RetailerPayment rp WHERE rp.username = :username AND  rp.retailerName = :retailerName AND rp.date BETWEEN :startDate AND :endDate GROUP BY rp.date")
+       @Query("SELECT new com.example.bake_boss_backend.dto.RetailerDetailsDTO(rp.date, rp.note, 'No', 0.0, 0.0, SUM(rp.amount), 0.0) FROM RetailerPayment rp WHERE rp.username = :username AND  rp.retailerName = :retailerName AND rp.date BETWEEN :startDate AND :endDate GROUP BY rp.date, rp.note")
        List<RetailerDetailsDTO> findPaymentDetailsByUsernameAndRetailerName(String username, String retailerName, LocalDate startDate, LocalDate endDate);
 
-       @Query("SELECT new com.example.bake_boss_backend.dto.RetailerDetailsDTO(rp.date, 'No', 0.0, 0.0, SUM(rp.amount), 0.0) FROM RetailerPayment rp JOIN RetailerInfo ri ON rp.retailerName = ri.retailerName WHERE ri.salesPerson = :salesPerson AND rp.retailerName = :retailerName AND rp.date BETWEEN :startDate AND :endDate GROUP BY rp.date")
+       @Query("SELECT new com.example.bake_boss_backend.dto.RetailerDetailsDTO(rp.date, rp.note, 'No', 0.0, 0.0, SUM(rp.amount), 0.0) FROM RetailerPayment rp JOIN RetailerInfo ri ON rp.retailerName = ri.retailerName WHERE ri.salesPerson = :salesPerson AND rp.retailerName = :retailerName AND rp.date BETWEEN :startDate AND :endDate GROUP BY rp.date, rp.note")
        List<RetailerDetailsDTO> findPaymentDetailsBySalesPersonAndRetailerName(String salesPerson, String retailerName, LocalDate startDate, LocalDate endDate);
 
        @Query("SELECT new com.example.bake_boss_backend.dto.RetailerBalanceDTO(" +
@@ -61,7 +61,7 @@ public interface RetailerPaymentRepository extends JpaRepository<RetailerPayment
        "LEFT JOIN ProductStock ps ON ps.customer = r.retailerName " +
        "AND ps.date BETWEEN :startDate AND :endDate " +
        "WHERE r.status = 'Active' " +
-       "GROUP BY r.retailerName, r.retailerCode, r.salesPerson")
+       "GROUP BY r.retailerName, r.retailerCode, r.salesPerson ORDER BY r.retailerName")
        List<RetailerBalanceDTO> findRetailerBalanceBetweenDates(
        @Param("startDate") LocalDate startDate,
        @Param("endDate") LocalDate endDate);

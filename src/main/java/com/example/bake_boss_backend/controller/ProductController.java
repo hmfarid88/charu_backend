@@ -95,7 +95,8 @@ public class ProductController {
     @PostMapping("/addEmployeeTarget")
     public ResponseEntity<?> addOrUpdateEmployeeTarget(@RequestBody EmployeeTarget employeeTarget) {
         Optional<EmployeeTarget> existingTarget = employeeTargetRepository
-                .findByEmployeeNameAndYearAndMonth(employeeTarget.getEmployeeName(), employeeTarget.getYear(), employeeTarget.getMonth());
+                .findByEmployeeNameAndYearAndMonth(employeeTarget.getEmployeeName(), employeeTarget.getYear(),
+                        employeeTarget.getMonth());
         if (existingTarget.isPresent()) {
             EmployeeTarget targetToUpdate = existingTarget.get();
             targetToUpdate.setAmount(employeeTarget.getAmount());

@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.bake_boss_backend.entity.ShopInfo;
-import com.example.bake_boss_backend.repository.CustomerInfoRepository;
 import com.example.bake_boss_backend.service.ShopInfoService;
 
 @RestController
@@ -21,7 +20,7 @@ public class InvoiceController {
     
 
     @Autowired
-    public InvoiceController(CustomerInfoRepository customerInfoRepository,
+    public InvoiceController(
             ShopInfoService shopInfoService) {
             this.shopInfoService = shopInfoService;
     }

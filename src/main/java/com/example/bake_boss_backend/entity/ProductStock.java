@@ -39,5 +39,6 @@ public class ProductStock {
     private String username;
     private String invoiceNo;
     private String truckNo;
+    private String note;
 
 }

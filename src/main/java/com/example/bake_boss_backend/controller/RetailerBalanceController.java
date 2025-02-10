@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.bake_boss_backend.dto.RetailerBalanceDTO;
 import com.example.bake_boss_backend.dto.RetailerDetailsDTO;
+import com.example.bake_boss_backend.entity.EmployeeInfo;
+import com.example.bake_boss_backend.entity.RetailerInfo;
+import com.example.bake_boss_backend.repository.EmployeeInfoRepository;
+import com.example.bake_boss_backend.repository.RetailerInfoRepository;
 import com.example.bake_boss_backend.service.RetailerBalanceService;
 
 @RestController
@@ -18,6 +22,12 @@ public class RetailerBalanceController {
 
     @Autowired
     private RetailerBalanceService retailerBalanceService;
+
+    @Autowired
+    private RetailerInfoRepository retailerInfoRepository;
+
+    @Autowired
+    private EmployeeInfoRepository employeeInfoRepository;
 
     @GetMapping("/retailerBalance")
     public List<RetailerBalanceDTO> retailerBalance() {
@@ -28,29 +38,31 @@ public class RetailerBalanceController {
     public List<RetailerBalanceDTO> datewiseRetailerBalance(LocalDate startDate, LocalDate endDate) {
         return retailerBalanceService.datewiseRetailerBalance(startDate, endDate);
     }
-  
+
     @GetMapping("/salesRetailerBalance")
     public List<RetailerBalanceDTO> salesRetailerBalance(@RequestParam String salesPerson) {
         return retailerBalanceService.salesRetailerBalance(salesPerson);
     }
 
     @GetMapping("/salesDatewiseRetailerBalance")
-    public List<RetailerBalanceDTO> salesDatewiseRetailerBalance(String salesPerson, LocalDate startDate, LocalDate endDate) {
+    public List<RetailerBalanceDTO> salesDatewiseRetailerBalance(String salesPerson, LocalDate startDate,
+            LocalDate endDate) {
         return retailerBalanceService.salesDatewiseRetailerBalance(salesPerson, startDate, endDate);
     }
 
     @GetMapping("/retailer-details")
     public List<RetailerDetailsDTO> getDetailsByRetailerAndUsername(
             @RequestParam String retailerName,
-            @RequestParam String username){
+            @RequestParam String username) {
         return retailerBalanceService.getDatewiseDetailsByRetailerAndUsername(retailerName, username);
     }
 
     @GetMapping("/datewise-retailer-details")
     public List<RetailerDetailsDTO> getDatewiseDetailsByRetailerAndUsername(LocalDate startDate, LocalDate endDate,
             @RequestParam String retailerName,
-            @RequestParam String username){
-        return retailerBalanceService.getDatewiseRetailerDetailsByRetailerAndUsername(retailerName, username, startDate, endDate);
+            @RequestParam String username) {
+        return retailerBalanceService.getDatewiseRetailerDetailsByRetailerAndUsername(retailerName, username, startDate,
+                endDate);
     }
 
     @GetMapping("/sales-retailer-details")
@@ -62,7 +74,18 @@ public class RetailerBalanceController {
     @GetMapping("/sales-datewise-retailer-details")
     public List<RetailerDetailsDTO> getDatewiseDetailsByRetailerAndSalesPerson(LocalDate startDate, LocalDate endDate,
             @RequestParam String retailerName,
-            @RequestParam String salesPerson){
-        return retailerBalanceService.getSalesDatewiseDetailsByRetailerAndSalesPerson(salesPerson, retailerName, startDate, endDate);
+            @RequestParam String salesPerson) {
+        return retailerBalanceService.getSalesDatewiseDetailsByRetailerAndSalesPerson(salesPerson, retailerName,
+                startDate, endDate);
+    }
+
+    @GetMapping("/getRetailerList")
+    public List<RetailerInfo> getAllRetailersOrderedByName() {
+        return retailerInfoRepository.findAllByOrderByRetailerNameAsc();
+    }
+
+    @GetMapping("/getEmployeeList")
+    public List<EmployeeInfo> getAllEmployeesOrderedByName() {
+        return employeeInfoRepository.findAllByOrderByEmployeeNameAsc();
     }
 }

@@ -9,6 +9,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class RetailerDetailsDTO {
     private LocalDate date;
+    private String note;
     private String productName;
     private Double productQty;
     private Double productValue;
