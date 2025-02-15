@@ -1,6 +1,7 @@
 package com.example.bake_boss_backend.controller;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -121,13 +122,27 @@ public class ProductController {
     }
 
     @PutMapping("/updateRetailerInfo/{id}")
-    public ResponseEntity<RetailerInfo> updateRetailerInfo(@PathVariable Long id,
-            @RequestBody RetailerInfo retailerInfo) {
+    public ResponseEntity<?> updateRetailerInfo(@PathVariable Long id, @RequestBody RetailerInfo retailerInfo) {
         try {
             RetailerInfo updatedRetailer = retailerBalanceService.updateRetailerInfo(id, retailerInfo);
             return ResponseEntity.ok(updatedRetailer);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(null);
+            // Return a response with the error message
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(400).body(errorResponse);
+        }
+    }
+
+    @PutMapping("/updateSaleInfo/{productId}")
+    public ResponseEntity<?> updateProductInfo(@PathVariable Long productId, @RequestBody ProductStock productstock) {
+        try {
+            ProductStock updatedProduct = productStockService.updateProductSale(productId, productstock);
+            return ResponseEntity.ok(updatedProduct);
+        } catch (RuntimeException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(400).body(errorResponse);
         }
     }
 
@@ -264,11 +279,6 @@ public class ProductController {
         return productStockrepository.findLatestProductStockForEachProductName(username);
     }
 
-    @GetMapping("/getDamagedStock")
-    public List<ProductStock> getDamagedStock(String username) {
-        return productStockrepository.findDamagedProductByStatus(username);
-    }
-
     @GetMapping("/getSoldProduct")
     public List<ProductStock> getSoldProduct(String username) {
         return productStockService.getProductDistForCurrentMonth(username);
@@ -277,6 +287,16 @@ public class ProductController {
     @GetMapping("/getDatewiseSoldProduct")
     public List<ProductStock> getDatewiseSoldProduct(String username, LocalDate startDate, LocalDate endDate) {
         return productStockService.getDatewiseSoldProductStock(username, startDate, endDate);
+    }
+
+    @GetMapping("/getSalesPersonSoldProduct")
+    public List<ProductStock> getSalesSoldProduct(String username) {
+        return productStockService.getSalesProductDistForCurrentMonth(username);
+    }
+
+    @GetMapping("/getSalesPersonDatewiseSoldProduct")
+    public List<ProductStock> getSalesDatewiseSoldProduct(String username, LocalDate startDate, LocalDate endDate) {
+        return productStockService.getSalesDatewiseSoldProduct(username, startDate, endDate);
     }
 
     @GetMapping("/getAllProduct")
@@ -322,5 +342,15 @@ public class ProductController {
     @GetMapping("findLastQty")
     public Double getLastRemainingQty(String username, String productName) {
         return productStockrepository.findLastRemainingQtyByUsernameAndProductName(username, productName);
+    }
+
+    @GetMapping("/getSaleInfo/{productId}")
+    public ResponseEntity<?> getProductStockById(@PathVariable Long productId) {
+        try {
+            ProductStock productStock = productStockService.getProductStockById(productId);
+            return ResponseEntity.ok(productStock);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
     }
 }

@@ -189,11 +189,24 @@ public class RetailerBalanceService {
             
     }
 
-   
-     public RetailerInfo updateRetailerInfo(Long id, RetailerInfo updatedRetailerInfo) {
+
+    public RetailerInfo updateRetailerInfo(Long id, RetailerInfo updatedRetailerInfo) {
         Optional<RetailerInfo> existingRetailerOpt = retailerInfoRepository.findById(id);
+    
         if (existingRetailerOpt.isPresent()) {
             RetailerInfo existingRetailer = existingRetailerOpt.get();
+    
+            // Check if the updated retailer name already exists (excluding the current retailer)
+            boolean retailerNameExists = retailerInfoRepository.existsByRetailerNameAndIdNot(
+                    updatedRetailerInfo.getRetailerName(), id);
+    
+            if (retailerNameExists) {
+           
+                throw new RuntimeException("Retailer name '" + updatedRetailerInfo.getRetailerName() 
+                    + "' already exists. Update failed.");
+            }
+    
+            // Update retailer info
             existingRetailer.setRetailerName(updatedRetailerInfo.getRetailerName());
             existingRetailer.setRetailerCode(updatedRetailerInfo.getRetailerCode());
             existingRetailer.setThanaName(updatedRetailerInfo.getThanaName());
@@ -202,10 +215,11 @@ public class RetailerBalanceService {
             existingRetailer.setMobileNumber(updatedRetailerInfo.getMobileNumber());
             existingRetailer.setSalesPerson(updatedRetailerInfo.getSalesPerson());
             existingRetailer.setStatus(updatedRetailerInfo.getStatus());
-
+    
             return retailerInfoRepository.save(existingRetailer);
         } else {
             throw new RuntimeException("Retailer not found with ID: " + id);
         }
     }
+    
 }

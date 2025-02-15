@@ -2,6 +2,7 @@ package com.example.bake_boss_backend.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,5 +56,26 @@ public class RetailerPaymentService {
 
     public List<RetailerCommission> getDatewiseRetailerCommission(String username, LocalDate startDate, LocalDate endDate) {
         return retailerCommissionRepository.findRetailerCommissionByDate(username, startDate, endDate);
+    }
+
+    public RetailerPayment getRetailerPaymentById(Long id) {
+        return retailerPaymentRepository.findById(id).orElse(null);
+    }
+
+     public RetailerPayment updateRetailerPayInfo(Long id, RetailerPayment updatedRetailerPayment) {
+        Optional<RetailerPayment> existingRetailerOpt = retailerPaymentRepository.findById(id);
+    
+        if (existingRetailerOpt.isPresent()) {
+            RetailerPayment existingRetailer = existingRetailerOpt.get();
+        
+            existingRetailer.setDate(updatedRetailerPayment.getDate());
+            existingRetailer.setRetailerName(updatedRetailerPayment.getRetailerName());
+            existingRetailer.setNote(updatedRetailerPayment.getNote());
+            existingRetailer.setAmount(updatedRetailerPayment.getAmount());
+              
+            return retailerPaymentRepository.save(existingRetailer);
+        } else {
+            throw new RuntimeException("Retailer not found with ID: " + id);
+        }
     }
 }

@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.bake_boss_backend.entity.ClosingSetup;
 import com.example.bake_boss_backend.entity.OrderInfo;
@@ -32,8 +33,19 @@ public class ProductStockService {
         return productStockRepository.findProductByStatus(year, month, username);
     }
 
+    public List<ProductStock> getSalesProductDistForCurrentMonth(String username) {
+        LocalDate now = LocalDate.now();
+        int year = now.getYear();
+        int month = now.getMonthValue();
+        return productStockRepository.findProductBySalesPerson(year, month, username);
+    }
+
     public List<ProductStock> getDatewiseSoldProductStock(String username, LocalDate startDate, LocalDate endDate) {
         return productStockRepository.findDatewiseSoldProductByUsername(username, startDate, endDate);
+    }
+
+    public List<ProductStock> getSalesDatewiseSoldProduct(String username, LocalDate startDate, LocalDate endDate) {
+        return productStockRepository.findDatewiseProductBySalesPerson(username, startDate, endDate);
     }
 
     public List<ProductStock> getAllProductStock(String username) {
@@ -75,5 +87,76 @@ public class ProductStockService {
 
     public Double getTotalSoldProductQtyToday() {
         return productStockRepository.findTotalSoldProductQtyToday();
+    }
+
+    public ProductStock getProductStockById(Long productId) {
+        return productStockRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("ProductStock not found with ID: " + productId));
+    }
+
+    // @Transactional
+    // public ResponseEntity<String> updateProductSale(Long productId, String
+    // username, Double newQty) {
+    // Optional<SalesStock> optionalStock =
+    // salesStockRepository.findById(productId);
+
+    // if (optionalStock.isPresent()) {
+    // SalesStock existingStock = optionalStock.get();
+    // Double oldQty = existingStock.getProductQty();
+    // Double qtyDifference = newQty - oldQty;
+    // existingStock.setProductQty(newQty);
+    // if (qtyDifference > 0) {
+    // salesStockRepository.reduceRemainingQty(existingStock.getProductName(),
+    // username, productId, qtyDifference);
+    // } else if (qtyDifference < 0) {
+    // salesStockRepository.increaseRemainingQty(existingStock.getProductName(),
+    // username, productId, Math.abs(qtyDifference));
+    // }
+    // salesStockRepository.save(existingStock);
+    // } else {
+    // System.out.println("SalesStock not found for productId: " + productId);
+    // }
+    // return null;
+    // }
+    @Transactional
+    public ProductStock updateProductSale(Long productId, ProductStock updatedProductStock) {
+        Optional<ProductStock> existingProductOpt = productStockRepository.findById(productId);
+
+        if (existingProductOpt.isPresent()) {
+            ProductStock existingProduct = existingProductOpt.get();
+            Double oldQty = existingProduct.getProductQty();
+            Double newQty = updatedProductStock.getProductQty();
+            Double qtyDifference = newQty - oldQty;
+            String oldProductName = existingProduct.getProductName();
+            String newProductName = updatedProductStock.getProductName();
+
+            existingProduct.setDate(updatedProductStock.getDate());
+            existingProduct.setProductName(updatedProductStock.getProductName());
+            existingProduct.setDpRate(updatedProductStock.getDpRate());
+            existingProduct.setProductQty(updatedProductStock.getProductQty());
+            existingProduct.setCustomer(updatedProductStock.getCustomer());
+            existingProduct.setTruckNo(updatedProductStock.getTruckNo());
+            existingProduct.setNote(updatedProductStock.getNote());
+
+            if (!oldProductName.equals(newProductName)) {
+                
+                Double previousRemainingQty = productStockRepository.findRemainingQtyByProductName(newProductName, productId);
+                Double newRemainingQty = previousRemainingQty;
+                productStockRepository.updateRemainingQtyByProductName(newProductName, productId, newRemainingQty);
+                productStockRepository.increaseRemainingQty(oldProductName, productId, oldQty);
+                productStockRepository.reduceRemainingQty(newProductName, productId, newQty);
+            }
+
+            if (qtyDifference > 0) {
+                productStockRepository.reduceRemainingQty(existingProduct.getProductName(), productId, qtyDifference);
+            } else if (qtyDifference < 0) {
+                productStockRepository.increaseRemainingQty(existingProduct.getProductName(), productId,
+                        Math.abs(qtyDifference));
+            }
+
+            return productStockRepository.save(existingProduct);
+        } else {
+            throw new RuntimeException("Product not found with ID: " + productId);
+        }
     }
 }

@@ -12,6 +12,7 @@ public class RetailerDetailsDTO {
     private String note;
     private String productName;
     private Double productQty;
+    private Double dpRate;
     private Double productValue;
     private Double payment;
     private Double commission;
