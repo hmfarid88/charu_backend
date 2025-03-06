@@ -62,6 +62,10 @@ public class RetailerPaymentService {
         return retailerPaymentRepository.findById(id).orElse(null);
     }
 
+    public Optional<RetailerCommission> getRetailerCommissionById(Long id) {
+        return retailerCommissionRepository.findById(id);
+    }
+
      public RetailerPayment updateRetailerPayInfo(Long id, RetailerPayment updatedRetailerPayment) {
         Optional<RetailerPayment> existingRetailerOpt = retailerPaymentRepository.findById(id);
     
@@ -74,6 +78,25 @@ public class RetailerPaymentService {
             existingRetailer.setAmount(updatedRetailerPayment.getAmount());
               
             return retailerPaymentRepository.save(existingRetailer);
+        } else {
+            throw new RuntimeException("Retailer not found with ID: " + id);
+        }
+    }
+
+     public RetailerCommission updateRetailerCommission(Long id, RetailerCommission updatedRetailerPayment) {
+        Optional<RetailerCommission> existingRetailerOpt = retailerCommissionRepository.findById(id);
+    
+        if (existingRetailerOpt.isPresent()) {
+            RetailerCommission existingRetailer = existingRetailerOpt.get();
+        
+            existingRetailer.setDate(updatedRetailerPayment.getDate());
+            existingRetailer.setRetailerName(updatedRetailerPayment.getRetailerName());
+            existingRetailer.setYear(updatedRetailerPayment.getYear());
+            existingRetailer.setMonth(updatedRetailerPayment.getMonth());
+            existingRetailer.setNote(updatedRetailerPayment.getNote());
+            existingRetailer.setAmount(updatedRetailerPayment.getAmount());
+              
+            return retailerCommissionRepository.save(existingRetailer);
         } else {
             throw new RuntimeException("Retailer not found with ID: " + id);
         }

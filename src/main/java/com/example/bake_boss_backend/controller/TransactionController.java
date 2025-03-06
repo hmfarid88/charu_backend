@@ -1,10 +1,17 @@
 package com.example.bake_boss_backend.controller;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -228,7 +235,6 @@ public class TransactionController {
         return supplierPaymentService.getDatewiseSupplierCommission(username, startDate, endDate);
     }
 
-   
     @GetMapping("/employee-targetList")
     public List<EmployeeMonthlySummary> getEmployeeMonthlySummary() {
         return employeeTargetService.getAllEmployeeMonthlySummaries();
@@ -240,7 +246,170 @@ public class TransactionController {
     }
 
     @GetMapping("/employee-total-taken")
-    public Double getSumOfAmountByEmployeeNameYearMonthAndUsername(String username, String employeeName, int year, int month) {
-        return employeePaymentRepository.findSumOfAmountByEmployeeNameYearMonthAndUsername(username, employeeName, year, month);
+    public Double getSumOfAmountByEmployeeNameYearMonthAndUsername(String username, String employeeName, int year,
+            int month) {
+        return employeePaymentRepository.findSumOfAmountByEmployeeNameYearMonthAndUsername(username, employeeName, year,
+                month);
+    }
+
+    @GetMapping("/getExpenseInfo/{id}")
+    public ResponseEntity<?> getExpenseById(@PathVariable Long id) {
+        try {
+            Optional<Expense> expense = expenseService.getExpenseById(id);
+            return ResponseEntity.ok(expense);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/getOfficepaymentInfo/{id}")
+    public ResponseEntity<?> getOfficepayById(@PathVariable Long id) {
+        try {
+            Optional<OfficePayment> officepay = officePaymentService.getOfficepayById(id);
+            return ResponseEntity.ok(officepay);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/getEmployeepaymentInfo/{id}")
+    public ResponseEntity<?> getEmployeepayById(@PathVariable Long id) {
+        try {
+            Optional<EmployeePayment> officepay = officePaymentService.getEmployeepayById(id);
+            return ResponseEntity.ok(officepay);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/getSupplierpaymentInfo/{id}")
+    public ResponseEntity<?> getSupplierpayById(@PathVariable Long id) {
+        try {
+            Optional<SupplierPayment> officepay = supplierPaymentService.getSupplierpayById(id);
+            return ResponseEntity.ok(officepay);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/getRetailerCommissionInfo/{id}")
+    public ResponseEntity<?> getRetailercommissionById(@PathVariable Long id) {
+        try {
+            Optional<RetailerCommission> officepay = retailerPaymentService.getRetailerCommissionById(id);
+            return ResponseEntity.ok(officepay);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/getOfficeReceiveInfo/{id}")
+    public ResponseEntity<?> getOfficeReceiveById(@PathVariable Long id) {
+        try {
+            Optional<OfficeReceive> officepay = officePaymentService.getOfficeReceiveById(id);
+            return ResponseEntity.ok(officepay);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/getSupplierCommissionInfo/{id}")
+    public ResponseEntity<?> getSuppliercommissionById(@PathVariable Long id) {
+        try {
+            Optional<SupplierCommission> officepay = supplierPaymentService.getSupplierCommissionById(id);
+            return ResponseEntity.ok(officepay);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/updateExpenseInfo/{id}")
+    public ResponseEntity<?> updateExpenseInfo(@PathVariable Long id, @RequestBody Expense expenseInfo) {
+        try {
+            Expense updatedExpense = expenseService.updateExpenseInfo(id, expenseInfo);
+            return ResponseEntity.ok(updatedExpense);
+        } catch (RuntimeException e) {
+            // Return a response with the error message
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(400).body(errorResponse);
+        }
+    }
+
+    @PutMapping("/updateOfficepayInfo/{id}")
+    public ResponseEntity<?> updateOfficepayInfo(@PathVariable Long id, @RequestBody OfficePayment officePayment) {
+        try {
+            OfficePayment updatedPayment = officePaymentService.updatePaymentInfo(id, officePayment);
+            return ResponseEntity.ok(updatedPayment);
+        } catch (RuntimeException e) {
+            // Return a response with the error message
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(400).body(errorResponse);
+        }
+    }
+
+    @PutMapping("/updateEmployeePayInfo/{id}")
+    public ResponseEntity<?> updateEmployeepayInfo(@PathVariable Long id, @RequestBody EmployeePayment officePayment) {
+        try {
+            EmployeePayment updatedPayment = officePaymentService.updateEmployeePaymentInfo(id, officePayment);
+            return ResponseEntity.ok(updatedPayment);
+        } catch (RuntimeException e) {
+            // Return a response with the error message
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(400).body(errorResponse);
+        }
+    }
+
+    @PutMapping("/updateSupplierPayInfo/{id}")
+    public ResponseEntity<?> updateSupplierpayInfo(@PathVariable Long id, @RequestBody SupplierPayment officePayment) {
+        try {
+            SupplierPayment updatedPayment = supplierPaymentService.updateSupplierPaymentInfo(id, officePayment);
+            return ResponseEntity.ok(updatedPayment);
+        } catch (RuntimeException e) {
+            // Return a response with the error message
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(400).body(errorResponse);
+        }
+    }
+
+    @PutMapping("/updateRetailerCommissionInfo/{id}")
+    public ResponseEntity<?> updateRetailerCommissionInfo(@PathVariable Long id, @RequestBody RetailerCommission officePayment) {
+        try {
+            RetailerCommission updatedPayment = retailerPaymentService.updateRetailerCommission(id, officePayment);
+            return ResponseEntity.ok(updatedPayment);
+        } catch (RuntimeException e) {
+            // Return a response with the error message
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(400).body(errorResponse);
+        }
+    }
+
+    @PutMapping("/updateOfficeRecdeiveInfo/{id}")
+    public ResponseEntity<?> updateOfficereceiveInfo(@PathVariable Long id, @RequestBody OfficeReceive officePayment) {
+        try {
+            OfficeReceive updatedPayment = officePaymentService.updateReceiveInfo(id, officePayment);
+            return ResponseEntity.ok(updatedPayment);
+        } catch (RuntimeException e) {
+            // Return a response with the error message
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(400).body(errorResponse);
+        }
+    }
+
+    @PutMapping("/updateSupplierCommissionInfo/{id}")
+    public ResponseEntity<?> updateSupplierCommissionInfo(@PathVariable Long id, @RequestBody SupplierCommission officePayment) {
+        try {
+            SupplierCommission updatedPayment = supplierPaymentService.updateSupplierCommissionInfo(id, officePayment);
+            return ResponseEntity.ok(updatedPayment);
+        } catch (RuntimeException e) {
+            // Return a response with the error message
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(400).body(errorResponse);
+        }
     }
 }

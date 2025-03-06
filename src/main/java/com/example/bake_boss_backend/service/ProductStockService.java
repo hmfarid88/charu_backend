@@ -94,30 +94,7 @@ public class ProductStockService {
                 .orElseThrow(() -> new RuntimeException("ProductStock not found with ID: " + productId));
     }
 
-    // @Transactional
-    // public ResponseEntity<String> updateProductSale(Long productId, String
-    // username, Double newQty) {
-    // Optional<SalesStock> optionalStock =
-    // salesStockRepository.findById(productId);
-
-    // if (optionalStock.isPresent()) {
-    // SalesStock existingStock = optionalStock.get();
-    // Double oldQty = existingStock.getProductQty();
-    // Double qtyDifference = newQty - oldQty;
-    // existingStock.setProductQty(newQty);
-    // if (qtyDifference > 0) {
-    // salesStockRepository.reduceRemainingQty(existingStock.getProductName(),
-    // username, productId, qtyDifference);
-    // } else if (qtyDifference < 0) {
-    // salesStockRepository.increaseRemainingQty(existingStock.getProductName(),
-    // username, productId, Math.abs(qtyDifference));
-    // }
-    // salesStockRepository.save(existingStock);
-    // } else {
-    // System.out.println("SalesStock not found for productId: " + productId);
-    // }
-    // return null;
-    // }
+   
     @Transactional
     public ProductStock updateProductSale(Long productId, ProductStock updatedProductStock) {
         Optional<ProductStock> existingProductOpt = productStockRepository.findById(productId);
