@@ -23,7 +23,9 @@ public interface RetailerPaymentRepository extends JpaRepository<RetailerPayment
                      +
                      "  (SELECT COALESCE(SUM(amount), 0) FROM office_payment WHERE username = :username AND DATE(date) < :date) + "
                      +
-                     "  (SELECT COALESCE(SUM(amount), 0) FROM supplier_payment WHERE username = :username AND DATE(date) < :date) "
+                     "  (SELECT COALESCE(SUM(amount), 0) FROM supplier_payment WHERE username = :username AND DATE(date) < :date) + "
+                     +
+                     "  (SELECT COALESCE(SUM(amount), 0) FROM employee_payment WHERE username = :username AND DATE(date) < :date) "
                      +
                      ") AS total_amount", nativeQuery = true)
        Double findNetSumAmountBeforeToday(@Param("username") String username, @Param("date") LocalDate date);
@@ -32,8 +34,7 @@ public interface RetailerPaymentRepository extends JpaRepository<RetailerPayment
                      +
                      "FROM RetailerPayment rp " +
                      "WHERE rp.username = :username AND rp.date = :date")
-       List<ReceiveDto> findRetailerPaymentsForToday(@Param("username") String username,
-                     @Param("date") LocalDate date);
+       List<ReceiveDto> findRetailerPaymentsForToday(@Param("username") String username, @Param("date") LocalDate date);
 
        @Query("SELECT o FROM RetailerPayment o WHERE YEAR(o.date) = :year AND MONTH(o.date) = :month AND o.username = :username")
        List<RetailerPayment> findRetailerPayByMonth(@Param("year") int year, @Param("month") int month,

@@ -49,10 +49,12 @@ public class OfficePaymentService {
         List<PaymentDto> userExpense = expenseRepository.findExpenseForToday(username, date);
         List<PaymentDto> userPayments = officePaymentRepository.findPaymentsForToday(username, date);
         List<PaymentDto> supplierPayments = supplierPaymentRepository.findSupplierPaymentsForToday(username, date);
+        List<PaymentDto> employeePayments = employeePaymentRepository.findEmployeePaymentsForToday(username, date);
         List<PaymentDto> combinedPayments = new ArrayList<>();
         combinedPayments.addAll(userExpense);
         combinedPayments.addAll(userPayments);
         combinedPayments.addAll(supplierPayments);
+        combinedPayments.addAll(employeePayments);
         return combinedPayments;
     }
 
