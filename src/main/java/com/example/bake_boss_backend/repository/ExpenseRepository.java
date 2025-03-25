@@ -16,9 +16,9 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long>{
             + "FROM Expense e WHERE e.username = :username AND e.date = :date")
     List<PaymentDto> findExpenseForToday(@Param("username") String username, @Param("date") LocalDate date);
 
-    @Query("SELECT e FROM Expense e WHERE MONTH(e.date) = :month AND YEAR(e.date) = :year AND e.username = :username")
+    @Query("SELECT e FROM Expense e WHERE MONTH(e.date) = :month AND YEAR(e.date) = :year AND e.username = :username ORDER BY e.date")
     List<Expense> findByMonthYearAndUsername(@Param("month") int month, @Param("year") int year, @Param("username") String username);
 
-    @Query("SELECT e FROM Expense e WHERE e.username = :username AND  e.date BETWEEN :startDate AND :endDate")
+    @Query("SELECT e FROM Expense e WHERE e.username = :username AND  e.date BETWEEN :startDate AND :endDate  ORDER BY e.date")
     List<Expense> findDatewiseExpense(String username, LocalDate startDate, LocalDate endDate);
 }

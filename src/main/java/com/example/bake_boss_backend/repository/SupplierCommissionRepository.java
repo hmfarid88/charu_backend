@@ -11,10 +11,10 @@ import com.example.bake_boss_backend.entity.SupplierCommission;
 
 public interface SupplierCommissionRepository extends JpaRepository<SupplierCommission, Long> {
 
-     @Query("SELECT o FROM SupplierCommission o WHERE YEAR(o.date) = :year AND MONTH(o.date) = :month AND o.username = :username")
+     @Query("SELECT o FROM SupplierCommission o WHERE YEAR(o.date) = :year AND MONTH(o.date) = :month AND o.username = :username ORDER BY o.date")
   List<SupplierCommission> findSupplierCommissionByMonth(@Param("year") int year, @Param("month") int month, @Param("username") String username);
 
-  @Query("SELECT o FROM SupplierCommission o WHERE o.username = :username AND  o.date BETWEEN :startDate AND :endDate")
+  @Query("SELECT o FROM SupplierCommission o WHERE o.username = :username AND  o.date BETWEEN :startDate AND :endDate ORDER BY o.date")
   List<SupplierCommission> findSupplierCommissionByDate(String username, LocalDate startDate, LocalDate endDate);
 
   @Query("SELECT sp.supplierName, SUM(sp.amount) " +

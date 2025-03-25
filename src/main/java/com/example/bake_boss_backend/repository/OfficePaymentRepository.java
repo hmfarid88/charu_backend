@@ -16,16 +16,16 @@ public interface OfficePaymentRepository extends JpaRepository<OfficePayment, Lo
             + "FROM OfficePayment p WHERE p.username=:username AND p.date = :date")
     List<PaymentDto> findPaymentsForToday(@Param("username") String username, @Param("date") LocalDate date);
 
-    @Query("SELECT o FROM OfficePayment o WHERE YEAR(o.date) = :year AND MONTH(o.date) = :month AND o.username = :username")
+    @Query("SELECT o FROM OfficePayment o WHERE YEAR(o.date) = :year AND MONTH(o.date) = :month AND o.username = :username ORDER BY o.date")
     List<OfficePayment> findPaymentsByMonth(@Param("year") int year, @Param("month") int month, @Param("username") String username);
 
-    @Query("SELECT o FROM OfficePayment o WHERE o.username = :username AND  o.date BETWEEN :startDate AND :endDate")
+    @Query("SELECT o FROM OfficePayment o WHERE o.username = :username AND  o.date BETWEEN :startDate AND :endDate ORDER BY o.date")
     List<OfficePayment> findPaymentsByDate(String username, LocalDate startDate, LocalDate endDate);
 
     @Query("SELECT p.paymentName, SUM(p.amount) FROM OfficePayment p GROUP BY p.paymentName")
     List<Object[]> findTotalPaymentAmountGroupedByPaymentName();
 
-    @Query("SELECT new com.example.bake_boss_backend.dto.DetailsPayReceiveDTO(p.date, p.paymentNote, p.amount, 0.0) FROM OfficePayment p where p.username= :username AND p.paymentName= :paymentName")
+    @Query("SELECT new com.example.bake_boss_backend.dto.DetailsPayReceiveDTO(p.date, p.paymentNote, p.amount, 0.0) FROM OfficePayment p where p.username= :username AND p.paymentName= :paymentName ORDER BY p.date ASC")
     List<DetailsPayReceiveDTO> findDetailsPaymentByPaymentNameAndUsername(@Param("username") String username, @Param("paymentName") String name);
    
 

@@ -1,6 +1,7 @@
 package com.example.bake_boss_backend.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -56,13 +57,19 @@ public class FinanceService {
         return financeBalances;
     }
 
-    public List<DetailsPayReceiveDTO> detailsPayReceive(String username, String name){
-        List<DetailsPayReceiveDTO> payments=officePaymentRepository.findDetailsPaymentByPaymentNameAndUsername(username, name);
-        List<DetailsPayReceiveDTO> receives=officeReceiveRepository.findDetailsReceiveByReceiveNameAndUsername(username, name);
-         List<DetailsPayReceiveDTO> combinedPayments = new ArrayList<>();
+    
+    public List<DetailsPayReceiveDTO> detailsPayReceive(String username, String name) {
+        List<DetailsPayReceiveDTO> payments = officePaymentRepository.findDetailsPaymentByPaymentNameAndUsername(username, name);
+        List<DetailsPayReceiveDTO> receives = officeReceiveRepository.findDetailsReceiveByReceiveNameAndUsername(username, name);
+        
+        List<DetailsPayReceiveDTO> combinedPayments = new ArrayList<>();
         combinedPayments.addAll(payments);
         combinedPayments.addAll(receives);
-       
+        
+        // Sort the combined list by date
+        combinedPayments.sort(Comparator.comparing(DetailsPayReceiveDTO::getDate));
+        
         return combinedPayments;
     }
+    
 }

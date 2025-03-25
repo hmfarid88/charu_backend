@@ -36,11 +36,10 @@ public interface RetailerPaymentRepository extends JpaRepository<RetailerPayment
                      "WHERE rp.username = :username AND rp.date = :date")
        List<ReceiveDto> findRetailerPaymentsForToday(@Param("username") String username, @Param("date") LocalDate date);
 
-       @Query("SELECT o FROM RetailerPayment o WHERE YEAR(o.date) = :year AND MONTH(o.date) = :month AND o.username = :username")
-       List<RetailerPayment> findRetailerPayByMonth(@Param("year") int year, @Param("month") int month,
-                     @Param("username") String username);
+       @Query("SELECT o FROM RetailerPayment o WHERE YEAR(o.date) = :year AND MONTH(o.date) = :month AND o.username = :username ORDER BY o.date")
+       List<RetailerPayment> findRetailerPayByMonth(@Param("year") int year, @Param("month") int month, @Param("username") String username);
 
-       @Query("SELECT ps FROM RetailerPayment ps WHERE  ps.username=:username AND ps.date BETWEEN :startDate AND :endDate")
+       @Query("SELECT ps FROM RetailerPayment ps WHERE  ps.username=:username AND ps.date BETWEEN :startDate AND :endDate ORDER BY ps.date")
        List<RetailerPayment> findDatewiseRetailerPaymentByUsername(String username, LocalDate startDate, LocalDate endDate);
 
       
