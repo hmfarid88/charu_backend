@@ -34,4 +34,10 @@ public class UserInfoService {
             repository.save(adminUser);
         }
     }
+
+    public boolean updatePassword(String username, String newPassword) {
+        String encryptedPassword = passwordEncoder.encode(newPassword);
+        int rowsAffected = repository.updatePasswordByUsername(username, encryptedPassword);
+        return rowsAffected > 0;
+    }
 }

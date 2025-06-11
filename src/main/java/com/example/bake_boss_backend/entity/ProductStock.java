@@ -13,14 +13,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(
+    name = "product_stock",
+    indexes = {
+        @Index(name = "idx_username", columnList = "username"),
+        @Index(name = "idx_product_name", columnList = "productName"),
+        @Index(name = "idx_invoice_no", columnList = "invoiceNo"),
+        @Index(name = "idx_status", columnList = "status"),
+        @Index(name = "idx_username_product", columnList = "username, productName"),
+        @Index(name = "idx_username_invoice", columnList = "username, invoiceNo")
+    }
+)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(indexes = {
-        @Index(name = "idx_supplier", columnList = "supplier"),
-        @Index(name = "idx_product_name", columnList = "productName"),
-        @Index(name = "idx_username", columnList = "username")
-})
 public class ProductStock {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
