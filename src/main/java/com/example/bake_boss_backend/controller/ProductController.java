@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,16 +27,28 @@ import com.example.bake_boss_backend.entity.ProductName;
 import com.example.bake_boss_backend.entity.ProductStock;
 import com.example.bake_boss_backend.entity.RetailerInfo;
 import com.example.bake_boss_backend.entity.SupplierName;
+import com.example.bake_boss_backend.entity.UserInfo;
 import com.example.bake_boss_backend.repository.EmployeeInfoRepository;
+import com.example.bake_boss_backend.repository.EmployeePaymentRepository;
 import com.example.bake_boss_backend.repository.EmployeeTargetRepository;
+import com.example.bake_boss_backend.repository.ExpenseRepository;
+import com.example.bake_boss_backend.repository.OfficePaymentRepository;
+import com.example.bake_boss_backend.repository.OfficeReceiveRepository;
 import com.example.bake_boss_backend.repository.OrderInfoRepository;
 import com.example.bake_boss_backend.repository.PaymentNameRepository;
 import com.example.bake_boss_backend.repository.ProductNameRepository;
 import com.example.bake_boss_backend.repository.ProductStockrepository;
+import com.example.bake_boss_backend.repository.RetailerCommissionRepository;
 import com.example.bake_boss_backend.repository.RetailerInfoRepository;
+import com.example.bake_boss_backend.repository.RetailerPaymentRepository;
+import com.example.bake_boss_backend.repository.SupplierCommissionRepository;
 import com.example.bake_boss_backend.repository.SupplierNameRepository;
+import com.example.bake_boss_backend.repository.SupplierPaymentRepository;
+import com.example.bake_boss_backend.repository.UserInfoRepository;
 import com.example.bake_boss_backend.service.ProductStockService;
 import com.example.bake_boss_backend.service.RetailerBalanceService;
+
+import jakarta.transaction.Transactional;
 
 @RestController
 @RequestMapping("/api")
@@ -74,6 +87,33 @@ public class ProductController {
 
     @Autowired
     private EmployeeTargetRepository employeeTargetRepository;
+
+    @Autowired
+    private EmployeePaymentRepository employeePaymentRepository;
+
+    @Autowired
+    private ExpenseRepository expenseRepository;
+
+    @Autowired
+    private OfficePaymentRepository officePaymentRepository;
+
+    @Autowired
+    private OfficeReceiveRepository officeReceiveRepository;
+
+    @Autowired
+    private RetailerPaymentRepository retailerPaymentRepository;
+
+    @Autowired
+    private RetailerCommissionRepository retailerCommissionRepository;
+
+    @Autowired
+    private SupplierCommissionRepository supplierCommissionRepository;
+
+    @Autowired
+    private SupplierPaymentRepository supplierPaymentRepository;
+
+    @Autowired
+    private UserInfoRepository userInfoRepository;
 
     @PostMapping("/closingSetup")
     public ClosingSetup saveOrUpdateClosingSetup(@RequestBody Map<String, String> request) {
@@ -132,6 +172,172 @@ public class ProductController {
             errorResponse.put("message", e.getMessage());
             return ResponseEntity.status(400).body(errorResponse);
         }
+    }
+
+    @PutMapping("/updateEmployeeInfo/{id}")
+    public ResponseEntity<?> updateEmployeeInfo(@PathVariable Long id, @RequestBody EmployeeInfo employeeInfo) {
+        try {
+            EmployeeInfo updatedEmployee = retailerBalanceService.updateEmployeeInfo(id, employeeInfo);
+            return ResponseEntity.ok(updatedEmployee);
+        } catch (RuntimeException e) {
+            // Return a response with the error message
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(400).body(errorResponse);
+        }
+    }
+
+ @PutMapping("/updateEntryInfo/{productId}")
+    public ResponseEntity<?> updateEntryInfo(@PathVariable Long productId, @RequestBody ProductStock productstock) {
+        try {
+            ProductStock updatedProduct = productStockService.updateProductEntry(productId, productstock);
+            return ResponseEntity.ok(updatedProduct);
+        } catch (RuntimeException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(400).body(errorResponse);
+        }
+    }
+
+    @DeleteMapping("/deleteEntryInfo/{productId}")
+    public ResponseEntity<?> deleteEntryInfo(@PathVariable Long productId) {
+    try {
+        ProductStock deletedProduct = productStockService.deleteProductEntry(productId);
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Product deleted successfully");
+        response.put("deletedProduct", deletedProduct);
+        return ResponseEntity.ok(response);
+    } catch (RuntimeException e) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("message", e.getMessage());
+        return ResponseEntity.status(400).body(errorResponse);
+    }
+}
+
+    @DeleteMapping("/deleteEmployeeById/{id}")
+public ResponseEntity<String> deleteEmployeeById(@PathVariable Long id) {
+    Optional<EmployeeInfo> employeeOpt = employeeInfoRepository.findById(id);
+
+    if (employeeOpt.isPresent()) {
+        EmployeeInfo employee = employeeOpt.get();
+        String employeeName = employee.getEmployeeName(); // same as username
+
+        // Delete the employee record
+        employeeInfoRepository.deleteById(id);
+
+        // Find and delete the corresponding UserInfo if role is "role_sales"
+        UserInfo userInfo = userInfoRepository.findByUsername(employeeName);
+        if (userInfo != null && "ROLE_SALES".equalsIgnoreCase(userInfo.getRoles())) {
+            userInfoRepository.delete(userInfo);
+        }
+
+        return ResponseEntity.ok("Employee and related user deleted successfully.");
+    } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee not found.");
+    }
+}
+
+    @DeleteMapping("/deleteEmpayById/{id}")
+    public ResponseEntity<String> deleteEmployeePayById(@PathVariable Long id) {
+        if (employeePaymentRepository.existsById(id)) {
+            employeePaymentRepository.deleteById(id);
+            return ResponseEntity.ok("Payment deleted successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Payment not found.");
+        }
+    }
+
+    @DeleteMapping("/deleteExpenseById/{id}")
+    public ResponseEntity<String> deleteExpenseById(@PathVariable Long id) {
+        if (expenseRepository.existsById(id)) {
+            expenseRepository.deleteById(id);
+            return ResponseEntity.ok("Payment deleted successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Payment not found.");
+        }
+    }
+
+    @DeleteMapping("/deleteOfficePayById/{id}")
+    public ResponseEntity<String> deleteOfficePayById(@PathVariable Long id) {
+        if (officePaymentRepository.existsById(id)) {
+            officePaymentRepository.deleteById(id);
+            return ResponseEntity.ok("Payment deleted successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Payment not found.");
+        }
+    }
+
+    @DeleteMapping("/deleteReceiveById/{id}")
+    public ResponseEntity<String> deleteReceiveById(@PathVariable Long id) {
+        if (officeReceiveRepository.existsById(id)) {
+            officeReceiveRepository.deleteById(id);
+            return ResponseEntity.ok("Payment deleted successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Payment not found.");
+        }
+    }
+
+    @DeleteMapping("/deleteRetailerPaymentById/{id}")
+    public ResponseEntity<String> deletePaymentById(@PathVariable Long id) {
+        if (retailerPaymentRepository.existsById(id)) {
+            retailerPaymentRepository.deleteById(id);
+            return ResponseEntity.ok("Payment deleted successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Payment not found.");
+        }
+    }
+
+    @DeleteMapping("/deleteRetailerComById/{id}")
+    public ResponseEntity<String> deleteComById(@PathVariable Long id) {
+        if (retailerCommissionRepository.existsById(id)) {
+            retailerCommissionRepository.deleteById(id);
+            return ResponseEntity.ok("Payment deleted successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Payment not found.");
+        }
+    }
+
+    @DeleteMapping("/deleteSupplierComById/{id}")
+    public ResponseEntity<String> deleteSuppComById(@PathVariable Long id) {
+        if (supplierCommissionRepository.existsById(id)) {
+            supplierCommissionRepository.deleteById(id);
+            return ResponseEntity.ok("Payment deleted successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Payment not found.");
+        }
+    }
+
+    @DeleteMapping("/deleteSupplierPayById/{id}")
+    public ResponseEntity<String> deleteSuppPayById(@PathVariable Long id) {
+        if (supplierPaymentRepository.existsById(id)) {
+            supplierPaymentRepository.deleteById(id);
+            return ResponseEntity.ok("Payment deleted successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Payment not found.");
+        }
+    }
+
+    @Transactional
+    @DeleteMapping("/deletePaymentName")
+    public ResponseEntity<String> deletePaymentName(@RequestParam String paymentPerson) {
+        paymentNameRepository.deleteByPaymentPerson(paymentPerson);
+        return ResponseEntity.ok("Name deleted successfully.");
+    }
+
+    @Transactional
+    @DeleteMapping("/deleteSupplierName")
+    public ResponseEntity<String> deleteSupplierName(@RequestParam String supplierName) {
+        supplierNameRepository.deleteBySupplierName(supplierName);
+        return ResponseEntity.ok("Name deleted successfully.");
+
+    }
+
+    @Transactional
+    @DeleteMapping("/deleteProductName")
+    public ResponseEntity<String> deleteProductName(@RequestParam String productName) {
+        productNameRepository.deleteByProductName(productName);
+        return ResponseEntity.ok("Name deleted successfully.");
+
     }
 
     @PutMapping("/updateSaleInfo/{productId}")
@@ -249,6 +455,11 @@ public class ProductController {
         return retailerInfoRepository.findByRetailerName(retailerName);
     }
 
+    @GetMapping("/getEmployeeInfoByEmployee")
+    public EmployeeInfo getEmployeeInfo(@RequestParam String employeeName) {
+        return employeeInfoRepository.findByEmployeeName(employeeName);
+    }
+
     @GetMapping("/getSalesRetailerInfo")
     public List<RetailerInfo> getSalesRetailer(@RequestParam String salesPerson) {
         return retailerInfoRepository.findBySalesPerson(salesPerson);
@@ -353,5 +564,13 @@ public class ProductController {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
-
+ @GetMapping("/getProductEntry/{productId}")
+    public ResponseEntity<?> getProductEntryById(@PathVariable Long productId) {
+        try {
+            ProductStock productStock = productStockService.getProductStockById(productId);
+            return ResponseEntity.ok(productStock);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
 }
