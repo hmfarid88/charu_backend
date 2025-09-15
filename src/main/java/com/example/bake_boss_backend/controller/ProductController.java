@@ -351,7 +351,15 @@ public ResponseEntity<String> deleteEmployeeById(@PathVariable Long id) {
             return ResponseEntity.status(400).body(errorResponse);
         }
     }
-
+     @DeleteMapping("/deleteProductSale/{productId}")
+    public ResponseEntity<String> deleteProductSale(@PathVariable Long productId) {
+        try {
+            productStockService.deleteProductSale(productId);
+            return ResponseEntity.ok("Product sale deleted successfully with ID: " + productId);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
     @PostMapping("/addEmployeeInfo")
     public ResponseEntity<?> addEmployee(@RequestBody EmployeeInfo employeeInfo) {
         if (employeeInfoRepository.existsByEmployeeName(employeeInfo.getEmployeeName())) {

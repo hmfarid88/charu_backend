@@ -25,16 +25,16 @@ public interface ProductStockrepository extends JpaRepository<ProductStock, Long
 
    List<ProductStock> findByUsernameAndInvoiceNo(String username, String invoiceNo);
 
-   @Query("SELECT ps FROM ProductStock ps WHERE ps.status='sold' AND YEAR(ps.date) = :year AND MONTH(ps.date) = :month AND ps.username=:username ORDER BY ps.date")
+   @Query("SELECT ps FROM ProductStock ps WHERE ps.status='sold' AND YEAR(ps.date) = :year AND MONTH(ps.date) = :month AND ps.username=:username ORDER BY ps.date, ps.productId")
    List<ProductStock> findProductByStatus(@Param("year") int year, @Param("month") int month, @Param("username") String username);
 
-   @Query("SELECT ps FROM ProductStock ps WHERE ps.status='sold' AND  ps.username=:username AND ps.date BETWEEN :startDate AND :endDate ORDER BY ps.date")
+   @Query("SELECT ps FROM ProductStock ps WHERE ps.status='sold' AND  ps.username=:username AND ps.date BETWEEN :startDate AND :endDate ORDER BY ps.date, ps.productId")
    List<ProductStock> findDatewiseSoldProductByUsername(String username, LocalDate startDate, LocalDate endDate);
 
-   @Query("SELECT ps FROM ProductStock ps JOIN RetailerInfo ri ON ps.customer = ri.retailerName WHERE ri.salesPerson = :username AND ps.status='sold' AND YEAR(ps.date) = :year AND MONTH(ps.date) = :month ORDER BY ps.date")
+   @Query("SELECT ps FROM ProductStock ps JOIN RetailerInfo ri ON ps.customer = ri.retailerName WHERE ri.salesPerson = :username AND ps.status='sold' AND YEAR(ps.date) = :year AND MONTH(ps.date) = :month ORDER BY ps.date, ps.productId")
    List<ProductStock> findProductBySalesPerson(@Param("year") int year, @Param("month") int month, @Param("username") String username);
 
-   @Query("SELECT ps FROM ProductStock ps JOIN RetailerInfo ri ON ps.customer = ri.retailerName WHERE ri.salesPerson = :username AND ps.status='sold' AND ps.date BETWEEN :startDate AND :endDate ORDER BY ps.date")
+   @Query("SELECT ps FROM ProductStock ps JOIN RetailerInfo ri ON ps.customer = ri.retailerName WHERE ri.salesPerson = :username AND ps.status='sold' AND ps.date BETWEEN :startDate AND :endDate ORDER BY ps.date, ps.productId")
    List<ProductStock> findDatewiseProductBySalesPerson(String username, LocalDate startDate, LocalDate endDate);
 
    @Query("SELECT ps FROM ProductStock ps WHERE  YEAR(ps.date) = :year AND MONTH(ps.date) = :month AND ps.username=:username ORDER BY ps.date")
