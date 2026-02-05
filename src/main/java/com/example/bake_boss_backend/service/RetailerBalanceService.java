@@ -100,18 +100,15 @@ public class RetailerBalanceService {
             LocalDate endDate = lastClosingSetup.getEndDate();
 
             List<RetailerDetailsDTO> productValue = Optional.ofNullable(
-                    productStockrepository.findProductDetailsByUsernameAndRetailerName(username, retailerName,
-                            startDate, endDate))
+                    productStockrepository.findProductDetailsByUsernameAndRetailerName(username, retailerName, startDate, endDate))
                     .orElse(Collections.emptyList());
 
             List<RetailerDetailsDTO> paymentValue = Optional.ofNullable(
-                    retailerPaymentRepository.findPaymentDetailsByUsernameAndRetailerName(username, retailerName,
-                            startDate, endDate))
+                    retailerPaymentRepository.findPaymentDetailsByUsernameAndRetailerName(username, retailerName, startDate, endDate))
                     .orElse(Collections.emptyList());
 
             List<RetailerDetailsDTO> commissionValue = Optional.ofNullable(
-                    retailerCommissionRepository.findCommissionDetailsByUsernameAndRetailerName(username, retailerName,
-                            startDate, endDate))
+                    retailerCommissionRepository.findCommissionDetailsByUsernameAndRetailerName(username, retailerName, startDate, endDate))
                     .orElse(Collections.emptyList());
 
             List<RetailerDetailsDTO> combinedDetails = new ArrayList<>();

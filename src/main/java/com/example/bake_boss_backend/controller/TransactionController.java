@@ -196,6 +196,16 @@ public class TransactionController {
         return retailerPaymentService.getRetailerPayForCurrentMonth(username);
     }
 
+    @GetMapping("/getEmployeeRetailerPayment")
+    public List<RetailerPayment> getEmployeeRetailerPayForCurrentMonth(@RequestParam String username) {
+        return retailerPaymentService.getEmployeeRetailerPayForCurrentMonth(username);
+    }
+
+    @GetMapping("/getEmployeeDatewiseRetailerPayment")
+    public List<RetailerPayment> getEmployeeDatewiseRetailerPayForCurrentMonth(@RequestParam String username,
+            LocalDate startDate, LocalDate endDate) {
+        return retailerPaymentService.getEmployeeDatewiseRetailerPay(username, startDate, endDate);
+    }
     @GetMapping("/getDatewiseRetailerPayment")
     public List<RetailerPayment> getDatewiseRetailerPayForCurrentMonth(@RequestParam String username,
             LocalDate startDate, LocalDate endDate) {

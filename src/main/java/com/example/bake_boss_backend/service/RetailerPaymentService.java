@@ -32,8 +32,19 @@ public class RetailerPaymentService {
         return retailerPaymentRepository.findRetailerPayByMonth(year, month, username);
     }
 
+    public List<RetailerPayment> getEmployeeRetailerPayForCurrentMonth(String username) {
+        LocalDate now = LocalDate.now();
+        int year = now.getYear();
+        int month = now.getMonthValue();
+        return retailerPaymentRepository.findEmployeeRetailerPayByMonth(username, year, month);
+    }
+
     public List<RetailerPayment> getDatewiseRetailerPay(String username, LocalDate startDate, LocalDate endDate) {
         return retailerPaymentRepository.findDatewiseRetailerPaymentByUsername(username, startDate, endDate);
+    }
+
+    public List<RetailerPayment> getEmployeeDatewiseRetailerPay(String username, LocalDate startDate, LocalDate endDate) {
+        return retailerPaymentRepository.findEmployeeDatewiseRetailerPaymentByUsername(username, startDate, endDate);
     }
 
     public List<EmployeePayment> getEmployeePayForCurrentMonth(String username) {

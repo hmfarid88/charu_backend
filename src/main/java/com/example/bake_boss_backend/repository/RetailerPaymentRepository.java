@@ -39,6 +39,12 @@ public interface RetailerPaymentRepository extends JpaRepository<RetailerPayment
        @Query("SELECT o FROM RetailerPayment o WHERE YEAR(o.date) = :year AND MONTH(o.date) = :month AND o.username = :username ORDER BY o.date")
        List<RetailerPayment> findRetailerPayByMonth(@Param("year") int year, @Param("month") int month, @Param("username") String username);
 
+       @Query("SELECT rp FROM RetailerPayment rp  JOIN RetailerInfo ri ON rp.retailerName = ri.retailerName WHERE ri.salesPerson = :username AND YEAR(rp.date) = :year AND MONTH(rp.date) = :month ORDER BY rp.date")
+       List<RetailerPayment> findEmployeeRetailerPayByMonth(@Param("username") String username, @Param("year") int year, @Param("month") int month);
+
+       @Query("SELECT rp FROM RetailerPayment rp  JOIN RetailerInfo ri ON rp.retailerName = ri.retailerName WHERE ri.salesPerson = :username AND rp.date BETWEEN :startDate AND :endDate ORDER BY rp.date")
+       List<RetailerPayment> findEmployeeDatewiseRetailerPaymentByUsername(String username, LocalDate startDate, LocalDate endDate);
+
        @Query("SELECT ps FROM RetailerPayment ps WHERE  ps.username=:username AND ps.date BETWEEN :startDate AND :endDate ORDER BY ps.date")
        List<RetailerPayment> findDatewiseRetailerPaymentByUsername(String username, LocalDate startDate, LocalDate endDate);
 
